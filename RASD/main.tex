@@ -8,6 +8,8 @@
 \usepackage{floatrow}
 \usepackage{hyperref}
 \usepackage{parskip}
+\usepackage{listings}
+\usepackage{alloy}
 
 
 \graphicspath{ {img/} }
@@ -66,6 +68,7 @@ The software will:
 \item Allow taxi drivers to accept or decline a certain client's request
 \item Guarantees a fair management of taxi queues
 \item Allow a user to reserve a taxi by specifying the origin and the destination of the ride at least two hours before
+\item Allow a driver to accept a client reservation
 \item Confirm the reservation to the user
 \item Supply APIs for further implementation of additional services in the future
 \end{enumerate}
@@ -94,6 +97,7 @@ The software will:
 \item[A\emph{n}:] Assumption number \emph{n}
 \item[D\emph{n}:] Domain Property number \emph{n}
 \item[G\emph{n}:] Goal number \emph{n}
+\item[]
 \end{description}
 
 \subsection{References}
@@ -217,10 +221,18 @@ This application is conceived for every taxi driver in the city area and for adu
 \item As soon as the request is discarded the client will be notified and able to make a new call
 \item The system will not give the client any information regarding the cost of the ride
 \item If a client calls a taxi and the request is accepted the client will not be able to modify or erase the request.
+
+In order to assure an efficient service it is necessary a slight modification to the customer request:
+\item When a customer reserves a taxi the system allocates the request to all registered driver 
+\item If a driver accepts the request the system confirms the reservation to the user
+\item If no driver confirms the reservation in at most half an hour since the request the system deletes the reservation and notifies the client
 \item A taxi reservation's origin must be located inside one of the zones of the city
 \item If a client reserves a taxi they will be able to modify the request at least two hours before the ride.
 \item A client is able to cancel a reservation at least ten minutes before the ride.
+\item The system notifies the driver about the ride they accepted ten minutes before the hour of the appointment with the client
 \end{enumerate}
+
+Assumptions A8, A9, A10, A14 were made in order to avoid the risk of having an empty queue or no driver who would accept the reservation only ten minutes before the fixed hour of the ride.
 
 \subsection{Apportioning of requirements}
 \begin{description}
@@ -324,13 +336,22 @@ This application is conceived for every taxi driver in the city area and for adu
         \item System sends a confirmation to the client if the driver accepts
         \item System forwards the request to the second driver in the queue if the first one declines
         \item System moves the first driver who has declined to the last position in the queue
+        \end{enumerate}
     \item
         \begin{enumerate}[label=\bfseries R\arabic*:]
         \item Clients must be already logged in the application.
         \item Clients must specify a valid origin (see assumption A8).
         \item Clients must make a reservation at least two hours before the ride.
         \end{enumerate}
-    \item \todo{Reservation Confirm}
+    \item
+        \begin{enumerate}[label=\bfseries R\arabic*:]
+        \item System receives a taxi reservation
+        \item System forwards request to all the registered drivers
+        \item System waits thirty minutes
+        \item System stops waiting if a driver accepts the reservation
+        \item System sends request's confirmation to the client if a driver has accepted the reservation
+        \item System sends a rejection notification to the client if thirty minutes have passed and no driver has accepted the reservation
+        \item System notifies the driver who has accepted the reservation ten minutes before the appointment with the client
     \item
         \begin{enumerate}[label=\bfseries R\arabic*:]
         \item Provide taxi's positions and availability state.
@@ -474,6 +495,13 @@ The following mockups represent the key features of Taxi Drivers' Application.
 \centering
 \caption{Clients UML Use Case Diagrams}
 \label{fig:usecaseclient}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{UseCase-TaxiDriver}
+\centering
+\caption{Taxi Drivers UML Use Case Diagrams}
+\label{fig:usecasetaxidriver}
 \end{figure}
 
 \subsubsection{Use Case Descriptions}
@@ -944,7 +972,7 @@ If the queue is ended, the client will receive a call rejection notification.
 \begin{figure}[H]
 \includegraphics[width=\sequenceWidth]{Sequence-Client-RideReservation}
 \centering
-\caption{Client Ride Reservation UML Sequence Diagram}
+\caption{Client Ride Reservation and Driver accepts/declines UML Sequence Diagram}
 \label{fig:sequenceclientridereservation}
 \end{figure}
 
@@ -981,6 +1009,21 @@ If the queue is ended, the client will receive a call rejection notification.
 \section{Appendixes}
 
 \subsection{Alloy}
+
+\begin{lstlisting}[language=alloy]
+open util/boolean
+sig Strings{}
+sig PhoneNumber{}
+sig Date{}
+
+abstract sig User {
+	name: one Strings,
+	surname: one Strings,
+	password: one Strings,
+	phone: one PhoneNumber,
+	eMail: one Strings
+}
+\end{lstlisting}
 
 \subsection{Software and Tools used}
 
