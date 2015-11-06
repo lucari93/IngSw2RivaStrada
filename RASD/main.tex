@@ -1,5 +1,6 @@
 \documentclass[a4paper]{article}
 \usepackage[utf8]{inputenc}
+\usepackage{fullpage}
 \usepackage{enumitem}
 \usepackage{todonotes}
 \usepackage{graphicx}
@@ -7,17 +8,18 @@
 \usepackage{mdwlist}
 \usepackage{floatrow}
 \usepackage{hyperref}
-\usepackage{parskip}
 \usepackage{listings}
 \usepackage{alloy}
-
+\usepackage{color}
 
 \graphicspath{ {img/} }
 
+\let\stdsection\section
+\renewcommand\section{\newpage\stdsection}
 
 \title{{\Huge myTaxiService} \\ Requirements Analysis and Specifications Document}
 \author{Jacopo Strada \and Luca Riva}
-\date{October 2015}
+\date{November 6, 2015}
 
 \begin{document}
 
@@ -27,13 +29,12 @@
 
 \tableofcontents
 
-\newpage
-
 \listoffigures 
 
 \listoftables
 
-\newpage
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1em}
 
 \section{Introduction}
 \subsection{Purpose}
@@ -83,6 +84,7 @@ The software will:
 \subsubsection{Acronyms}
 \begin{description}
 \item[API:] Application Programming Interface
+\item[BPMN:] Business Process Model and Notation
 \item[CPU:] Central Processing Unit
 \item[GPS:] Global Position System
 \item[HTTPS:] Hyper Text Transfer Protocol over Secure Socket Layer
@@ -90,6 +92,7 @@ The software will:
 \item[IT:] Information Technology
 \item[RAM:] Random Access Memory
 \item[SSD:] Solid State Drive 
+\item[UML:] Unified Modeling Language
 \end{description}
 
 \subsubsection{Abbreviations}
@@ -97,7 +100,7 @@ The software will:
 \item[A\emph{n}:] Assumption number \emph{n}
 \item[D\emph{n}:] Domain Property number \emph{n}
 \item[G\emph{n}:] Goal number \emph{n}
-\item[]
+\item[R\emph{n}:] Requirement number \emph{n}
 \end{description}
 
 \subsection{References}
@@ -107,12 +110,14 @@ The software will:
 \end{itemize}
 
 \subsection{Document Overview}
+\vbox{
 \begin{itemize}
 \item In section 2 many factors influencing the system and its requirements are explained without emphasizing specific requirements, but focusing on what lays behind the process of defining these requirements and making them easily understandable.
 \item In section 3 all the requirements mentioned before are carefully described: inputs and outputs of the system are accounted as well as the processes performed by the system from the reception of a given input to the resulting output. In order to make the requirements and the processes as clear as possible this section includes many models that may help the reader figuring out every important detail.
 \item In the appendix of the document it is possible to find an Alloy model of the system's structure with various demonstrations of how the specified requirements guarantee the desired behaviours and properties of the software.
-
 \end{itemize}
+}
+
 \section{Overall Description}
 \subsection{Product Perspective}
 The software will consist in three different user interfaces: two different apps for the clients and the taxi drivers and one web application. 
@@ -127,25 +132,24 @@ The system will also provide programmatic interfaces for other new services. At 
 \item Taxi Driver
     \begin{itemize}
     \item Smartphone App on
-        \begin{itemize}
+        \begin{itemize*}
         \item Android
         \item iOS
         \item Windows Phone
-        \end{itemize}
+        \end{itemize*}
     \item Web Browser (any operating system)
     \end{itemize}
 \item Clients
     \begin{itemize}
     \item Smartphone App on
-        \begin{itemize}
+        \begin{itemize*}
         \item Android
         \item iOS
         \item Windows Phone
-        \end{itemize}
+        \end{itemize*}
     \item Web Browser (any operating system)
     \end{itemize}
 \end{itemize}
-
 
 \subsubsection{Hardware Interface}
 Client Side:
@@ -153,29 +157,29 @@ Client Side:
 \item Smartphone and Tablet
     \begin{itemize}
     \item Android
-        \begin{itemize}
+        \begin{itemize*}
         \item CPU: DualCore 1Ghz
         \item RAM: 700Mb
         \item GPS
-        \end{itemize}
+        \end{itemize*}
     \item iOS
-        \begin{itemize}
+        \begin{itemize*}
         \item iPhone 4 or greater
         \item iPad 2 or greater
-        \end{itemize}
+        \end{itemize*}
     \item Windows Phone
-        \begin{itemize}
+        \begin{itemize*}
         \item CPU: DualCore 1Ghz
         \item RAM: 512Mb
         \item GPS
-        \end{itemize}
+        \end{itemize*}
     \end{itemize}
-\item Web Browser (any operating system)
-    \begin{itemize}
-    \item CPU: 1Ghz
-    \item RAM: 1Gb
-    \item GPS
-    \end{itemize}
+\item \begin{samepage} Web Browser (any operating system)
+        \begin{itemize*}
+        \item CPU: 1Ghz
+        \item RAM: 1Gb
+        \item GPS
+        \end{itemize*} \end{samepage}
 \end{itemize}
 
 Server Side:
@@ -221,13 +225,15 @@ This application is conceived for every taxi driver in the city area and for adu
 \item As soon as the request is discarded the client will be notified and able to make a new call
 \item The system will not give the client any information regarding the cost of the ride
 \item If a client calls a taxi and the request is accepted the client will not be able to modify or erase the request.
+\end{enumerate}
 
 In order to assure an efficient service it is necessary a slight modification to the customer request:
-\item When a customer reserves a taxi the system allocates the request to all registered driver 
+
+\begin{enumerate}[label=\bfseries A\arabic*:, resume]
+\item When a customer reserves a taxi the system allocates the request to all registered driver
 \item If a driver accepts the request the system confirms the reservation to the user
-\item If no driver confirms the reservation in at most half an hour since the request the system deletes the reservation and notifies the client
+\item If no driver confirms the reservation in at most an hour since the request the system deletes the reservation and notifies the client
 \item A taxi reservation's origin must be located inside one of the zones of the city
-\item If a client reserves a taxi they will be able to modify the request at least two hours before the ride.
 \item A client is able to cancel a reservation at least ten minutes before the ride.
 \item The system notifies the driver about the ride they accepted ten minutes before the hour of the appointment with the client
 \end{enumerate}
@@ -352,6 +358,7 @@ Assumptions A8, A9, A10, A14 were made in order to avoid the risk of having an e
         \item System sends request's confirmation to the client if a driver has accepted the reservation
         \item System sends a rejection notification to the client if thirty minutes have passed and no driver has accepted the reservation
         \item System notifies the driver who has accepted the reservation ten minutes before the appointment with the client
+        \end{enumerate}
     \item
         \begin{enumerate}[label=\bfseries R\arabic*:]
         \item Provide taxi's positions and availability state.
@@ -363,33 +370,35 @@ Assumptions A8, A9, A10, A14 were made in order to avoid the risk of having an e
 \subsubsection{Performance Requirements}
 
 As already stated before, performance is  an important point for this application and so is also necessary to give an idea of the big amount of users who will be serviced by the application.
-From a little analysis we've derived that \emph{myTaxiService} has to handle at least 2 Millions of users on line in the same time.
+From a little analysis we have derived that \emph{myTaxiService} has to handle at least 2 Millions of users on line in the same time.
 
 The time of response must be less or equals to 1 second for at least 90\% of transactions.
 
 \subsubsection{Software System Attributes}
+\nopagebreak
+\vbox{
 \begin{description}
 \item[Reliability:] The system is a work's provider for Taxi drivers and so it's important that no opportunities will be lost. \newline In order to make this will be implemented a system of acknowledge which guarantees that all notifications will arrive to their proper destination.
-
 \item[Availability:] This application may become a complete substitute of telephone taxi calls and so is very important that it will be always available. For doing so the system will be hosted on multiple servers in order to be resistant to some faults.]
 \item[Security:] The security on the communications is guaranteed by the use of HTTPS with SSL encryption. \newline Attacks are prevented thanks to a structure with more than one level of servers with always a firewall between them.
 \end{description}
+}
 
 \subsection{External Interfaces}
 
 In this section there is a set of mockups illustrating the most important screens of \emph{myTaxyService}. These mockups are divided into two sections in order to divide the Clients Application from the Taxi Drivers Application.
 
-What is presented is only a first idea of the applications that is useful for better understanding the whole system described in next sections.
+What is presented is only a first idea of the applications that is useful for a better understanding of the whole system described in next sections.
 
 % Mockups Width
 \newlength{\mockupWidth}
-\setlength{\mockupWidth}{.38\textwidth}
+\setlength{\mockupWidth}{.3\textwidth}
 % Set caption position
 \floatsetup[figure]{capposition=beside,capbesideposition={center,right}}
 
 \subsubsection{Clients' User Interfaces}
 
-Here are shown mockups for the Client Application. In the project is also planned a website for them which isn't represented here but it will have the same features proposed for the mobile application.
+Here are shown mockups for the Client Application. In the project is also planned a website for them which is not represented here but it will have the same features proposed for the mobile application.
 
 \begin{figure}[H]
 \includegraphics[width=\mockupWidth]{Mockup-ClientsRegistration}
@@ -465,8 +474,14 @@ The following mockups represent the key features of Taxi Drivers' Application.
 \label{fig:mockuptaxidriverincomingcall}
 \end{figure}
 
-\subsection{The World and The Machine}
-
+\begin{figure}[H]
+\includegraphics[width=\mockupWidth]{Mockup-TaxiDriversReservationRequest}
+\centering
+\caption[Taxi Drivers Reservation Request]{Taxi Drivers Reservation Request: \newline This page is shown when a clients makes a reservation request and the system tries to assign that to a taxi driver. The taxi driver has to click on \emph{Accept} or \emph{Decline} before a timeout expires otherwise the effect is the same of \emph{Decline} and the notification will arrive to the next taxi driver of the system.}
+\label{fig:mockuptaxidriverireservationrequest}
+\end{figure}
+\clearpage
+\subsection{The World and The Machine}The model by M. Jackson \& P. Zave is able to clearly schematize where the entities involved in the project are ideally located and which are the means of interaction between the world and the system at a first glance.
 % Set caption position
 \floatsetup[figure]{capposition=bottom}
 
@@ -485,7 +500,7 @@ The following mockups represent the key features of Taxi Drivers' Application.
         \item Gianfilippa has been invited to an high school reunion out of town, but she does not have a car and the place is not reachable by the usual public means of transport. Luckily for her a few weeks ago she joined, mostly out of curiosity, \emph{myTaxiService} and thus she has the possibility to book a custom taxi ride. The app asks her to choose an origin and then the destination. After choosing her home and the restaurant, Gianfilippa selects the hour and the date of the reunion and then forwards the reservation. Finally the application reminds her that she will shortly receive a confirmation.
     \end{enumerate}
     
-\subsection{UML Models}
+\subsection{UML and BPMN Models}
 
 
 \subsubsection{Use Case Models}
@@ -496,6 +511,8 @@ The following mockups represent the key features of Taxi Drivers' Application.
 \caption{Clients UML Use Case Diagrams}
 \label{fig:usecaseclient}
 \end{figure}
+
+\vfill
 
 \begin{figure}[H]
 \includegraphics[width=\textwidth]{UseCase-TaxiDriver}
@@ -654,7 +671,7 @@ The following mockups represent the key features of Taxi Drivers' Application.
 \\ \hline
 \end{tabular}
 \end{center}
-\caption{Use Case Description of Taxi Driver Log In}
+\caption{Use Case Description of Client Log In}
 \label{table:clientlogin}
 \end{table}
 
@@ -742,7 +759,7 @@ The following mockups represent the key features of Taxi Drivers' Application.
 \begin{center}
 \begin{tabular}{ |m{.25\textwidth}|m{.65\textwidth}|  }
 \hline
-    \multicolumn{2}{|c|}{\textbf{\textit{The client receives a Taxi Call confirmation}}} \\
+    \multicolumn{2}{|c|}{\textbf{\textit{The client receives a Taxi Call Confirmation}}} \\
 \hline \hline
     \textbf{Actors}
 &   Registered Client
@@ -766,8 +783,40 @@ The following mockups represent the key features of Taxi Drivers' Application.
 \\ \hline
 \end{tabular}
 \end{center}
-\caption{Use Case Description of a Taxi Call confirmation}
+\caption{Use Case Description of a Taxi Call Confirmation}
 \label{table:clientconfirmation}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{ |m{.25\textwidth}|m{.65\textwidth}|  }
+\hline
+    \multicolumn{2}{|c|}{\textbf{\textit{The client receives a Taxi Call Rejection}}} \\
+\hline \hline
+    \textbf{Actors}
+&   Registered Client
+\\ \hline
+    \textbf{Entry Conditions}
+&   The Client must be logged into the website or the application.
+\\ \hline
+    \textbf{Flow of Events}
+& 
+    \begin{enumerate*}
+    \item The client receives a notification
+    \item The app (or website) shows that their request was rejected
+    \end{enumerate*}
+\\ \hline
+    \textbf{Exit Conditions}
+&   The client is able to make another call.
+\\ \hline
+    \textbf{Exceptions}
+&   
+    There aren't exceptions for this use case.
+\\ \hline
+\end{tabular}
+\end{center}
+\caption{Use Case Description of a Taxi Call Rejection}
+\label{table:clientrejection}
 \end{table}
 
 
@@ -814,6 +863,103 @@ The following mockups represent the key features of Taxi Drivers' Application.
 \label{table:clientridereservation}
 \end{table}
 
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{ |m{.25\textwidth}|m{.65\textwidth}|  }
+\hline
+    \multicolumn{2}{|c|}{\textbf{\textit{The client deletes a Ride Reservation }}} \\
+\hline \hline
+    \textbf{Actors}
+&   Registered Client
+\\ \hline
+    \textbf{Entry Conditions}
+&   The Client must be logged into the website or the application.
+\\ \hline
+    \textbf{Flow of Events}
+& 
+    \begin{enumerate*}
+    \item The client clicks on the \emph{Your Reservations} button in the menu
+    \item The client clicks on the reservation who wants to delete from the list
+    \item The application shows the reservation's details
+    \item The client clicks on the \emph{Delete} button
+    \end{enumerate*}
+\\ \hline
+    \textbf{Exit Conditions}
+&   The reservation was successfully deleted.
+\\ \hline
+    \textbf{Exceptions}
+&   The client cannot delete the reservation if the meeting time is sooner than ten minutes.
+\\ \hline
+\end{tabular}
+\end{center}
+\caption{Use Case Description of a Client who deletes a Ride Reservation}
+\label{table:clientdeleteridereservation}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{ |m{.25\textwidth}|m{.65\textwidth}|  }
+\hline
+    \multicolumn{2}{|c|}{\textbf{\textit{The client receives a Ride Reservation Confirmation}}} \\
+\hline \hline
+    \textbf{Actors}
+&   Registered Client
+\\ \hline
+    \textbf{Entry Conditions}
+&   The Client must be logged into the website or the application.
+\\ \hline
+    \textbf{Flow of Events}
+& 
+    \begin{enumerate*}
+    \item The client receives a notification
+    \item The app (or website) shows the number of the taxi which will arrive, the taxi driver's phone number, the place and the meeting time.
+    \end{enumerate*}
+\\ \hline
+    \textbf{Exit Conditions}
+&   The taxi will arrive at the meeting place at the specified time.
+\\ \hline
+    \textbf{Exceptions}
+&   
+    There aren't exceptions for this use case.
+\\ \hline
+\end{tabular}
+\end{center}
+\caption{Use Case Description of a Ride Reservation Confirmation}
+\label{table:clientrideconfirmation}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{ |m{.25\textwidth}|m{.65\textwidth}|  }
+\hline
+    \multicolumn{2}{|c|}{\textbf{\textit{The client receives a Ride Reservation Rejection}}} \\
+\hline \hline
+    \textbf{Actors}
+&   Registered Client
+\\ \hline
+    \textbf{Entry Conditions}
+&   The Client must be logged into the website or the application.
+\\ \hline
+    \textbf{Flow of Events}
+& 
+    \begin{enumerate*}
+    \item The client receives a notification
+    \item The app (or website) shows that their ride request was rejected
+    \end{enumerate*}
+\\ \hline
+    \textbf{Exit Conditions}
+&   The client is able to make another call or reservation.
+\\ \hline
+    \textbf{Exceptions}
+&   
+    There aren't exceptions for this use case.
+\\ \hline
+\end{tabular}
+\end{center}
+\caption{Use Case Description of a Ride Reservation Rejection}
+\label{table:clienridetrejection}
+\end{table}
+
 
 \begin{table} [H]
 \begin{center}
@@ -855,7 +1001,7 @@ The following mockups represent the key features of Taxi Drivers' Application.
 \begin{center}
 \begin{tabular}{ |m{.25\textwidth}|m{.65\textwidth}|  }
 \hline
-    \multicolumn{2}{|c|}{\textbf{\textit{The Taxi Driver receives a new request notification}}} \\
+    \multicolumn{2}{|c|}{\textbf{\textit{The Taxi Driver receives a new call request notification}}} \\
 \hline \hline
     \textbf{Actors}
 &   Registered Taxi Driver
@@ -865,6 +1011,7 @@ The following mockups represent the key features of Taxi Drivers' Application.
     \begin{itemize*}
     \item The Taxi Driver must be logged into the application
     \item The application must be opened or running in background
+    \item The Taxi Driver state must be \emph{Available}
     \end{itemize*}
 \\ \hline
     \textbf{Flow of Events}
@@ -887,7 +1034,7 @@ The following mockups represent the key features of Taxi Drivers' Application.
 \\ \hline
 \end{tabular}
 \end{center}
-\caption{Use Case Description of Taxi Driver who receives a notification}
+\caption{Use Case Description of Taxi Driver who receives a call notification}
 \label{table:taxireceivenotification}
 \end{table}
 
@@ -925,6 +1072,86 @@ If the queue is ended, the client will receive a call rejection notification.
 \end{tabular}
 \end{center}
 \caption{Use Case Description of Taxi Driver who decides to accept or decline a call request}
+\label{table:taxievaluateriderequest}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{ |m{.25\textwidth}|m{.65\textwidth}|  }
+\hline
+    \multicolumn{2}{|c|}{\textbf{\textit{The Taxi Driver receives a new ride reservation request notification}}} \\
+\hline \hline
+    \textbf{Actors}
+&   Registered Taxi Driver
+\\ \hline
+    \textbf{Entry Conditions}
+&   
+    \begin{itemize*}
+    \item The Taxi Driver must be logged into the application
+    \item The application must be opened or running in background
+    \end{itemize*}
+\\ \hline
+    \textbf{Flow of Events}
+& 
+    \begin{enumerate*}
+    \item The driver smartphone rings or vibrates (according to user's settings)
+    \item The driver clicks on the notification
+    \item The app shows the details of the ride reservation request:
+        \begin{itemize*}
+        \item Origin
+        \item Destination
+        \item Date
+        \item Time
+        \item Client Phone Number
+        \end{itemize*}
+    \end{enumerate*}
+\\ \hline
+    \textbf{Exit Conditions}
+&  The applications is showing the details and the taxi driver has to evaluate this request.
+\\ \hline
+    \textbf{Exceptions}
+&   There aren't exceptions for this use case.
+\\ \hline
+\end{tabular}
+\end{center}
+\caption{Use Case Description of Taxi Driver who receives a call notification}
+\label{table:taxireceiveridereservationnotification}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{ |m{.25\textwidth}|m{.65\textwidth}|  }
+\hline
+    \multicolumn{2}{|c|}{\textbf{\textit{The Taxi Driver evaluates a Ride Reservarion request}}} \\
+\hline \hline
+    \textbf{Actors}
+&   Registered Taxi Driver
+\\ \hline
+    \textbf{Entry Conditions}
+&   
+    \begin{itemize*}
+    \item The Taxi Driver must be logged into the application
+    \item The Taxi Driver must have received a request notification
+    \item The application must be opened on the ride reservation request
+    \end{itemize*}
+\\ \hline
+    \textbf{Flow of Events}
+& 
+    \begin{enumerate*}
+    \item The driver smartphone shows the details of the ride
+    \item The Taxi Driver clicks on \emph{Accept} button
+    \end{enumerate*}
+\\ \hline
+    \textbf{Exit Conditions}
+&  The Taxi Driver has to go to take their client who has received the confirmation.
+\\ \hline
+    \textbf{Exceptions}
+&   If the taxi driver clicks on \emph{Decline} or the timeout runs out, the request will pass to the next driver in the system \newline
+If all the taxi drivers have declined the request, a rejection will be sent to the client
+\\ \hline
+\end{tabular}
+\end{center}
+\caption{Use Case Description of Taxi Driver who decides to accept or decline a Ride Reservation request}
 \label{table:taxievaluaterequest}
 \end{table}
 
@@ -997,6 +1224,23 @@ If the queue is ended, the client will receive a call rejection notification.
 \label{fig:sequencetaxidriverrequestevaluation}
 \end{figure}
 
+\subsubsection{BPMN Diagrams}
+
+\begin{figure}[H]
+\includegraphics[width=\sequenceWidth]{BPMN-rideRequest}
+\centering
+\caption[BPMN Taxi Call]{This is a BPMN diagram of the taxi's request process of \emph{myTaxiService}}
+\label{fig:bpmndiagramrequest}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[width=\sequenceWidth]{BPMN-rideReservation}
+\centering
+\caption[BPMN Ride Reservation]{This is a BPMN diagram of the taxi's reservation process of \emph{myTaxiService}}
+\label{fig:bpmndiagramreservation}
+\end{figure}
+
+
 \subsubsection{Class Diagram}
 
 \begin{figure}[H]
@@ -1010,20 +1254,114 @@ If the queue is ended, the client will receive a call rejection notification.
 
 \subsection{Alloy}
 
-\begin{lstlisting}[language=alloy]
-open util/boolean
-sig Strings{}
-sig PhoneNumber{}
-sig Date{}
+We have used \emph{Alloy Analyzer} in our project to make a formal definition of the most important properties of our system. In the following sections is presented the model and the results derived using this tool.
 
-abstract sig User {
-	name: one Strings,
-	surname: one Strings,
-	password: one Strings,
-	phone: one PhoneNumber,
-	eMail: one Strings
+\newlength{\codeWidth}
+\setlength{\codeWidth}{\textwidth}
+
+\subsubsection{Signatures}
+
+Here are presented the signatures of our model. Some fields which haven't a relevant importance in term of constraint were omitted in order to make the model as simpler as possible.
+
+\nopagebreak
+\begin{minipage}[c]{\codeWidth}
+\lstinputlisting[language=alloy]{alloy/signatures.als}
+\end{minipage}
+
+\subsubsection{Facts}
+
+In this section the code represent all the constraints necessary to make the model consistent.
+
+\nopagebreak
+\begin{minipage}[c]{\codeWidth}
+\lstinputlisting[language=alloy]{alloy/facts.als}
+\end{minipage}
+
+
+\subsubsection{Functions}
+
+The following code is a function used to write assertions in an easy way.
+
+\nopagebreak
+\begin{minipage}[c]{\codeWidth}
+\lstinputlisting[language=alloy]{alloy/functions.als}
+\end{minipage}
+
+\subsubsection{Assertions}
+
+Here the are some assertions to be checked in order to verify the model.
+
+\nopagebreak
+\begin{minipage}[c]{\codeWidth}
+\lstinputlisting[language=alloy]{alloy/assertions.als}
+\end{minipage}
+
+\subsubsection{Predicates}
+
+The code below is the declaration of some predicates.
+
+\nopagebreak
+\begin{minipage}[c]{\codeWidth}
+\lstinputlisting[language=alloy]{alloy/predicates.als}
+\end{minipage}
+
+\subsubsection{Main}
+
+This is the main code of the model.
+
+\nopagebreak
+\begin{minipage}[c]{\codeWidth}
+\lstinputlisting[language=alloy]{alloy/main.als}
+\end{minipage}
+
+\subsubsection{Output}
+
+The following screenshot represent the output geneted by \emph{Alloy Analyzer} starting from the code presented in the previous sections. It shows that the model is consistent.
+
+\nopagebreak
+\begin{figure}[H]
+\includegraphics[width=.7\textwidth]{Alloy-Output}
+\centering
+\caption{Alloy Output}
+\label{fig:alloyoutput}
+\end{figure}
+
+\subsubsection{Worlds}
+
+The images in this section represent some \emph{Worlds} generate with \emph{Alloy Analyzer}. These \emph{Worlds} show some configurations of our system.
+
+\newlength{\worldsWidth}
+\setlength{\worldsWidth}{.9\textwidth}
+
+\nopagebreak
+\begin{figure}[H]
+\includegraphics[width=\worldsWidth]{Alloy-Generic}
+\centering
+\caption[Alloy Generic World]{This alloy world represent a generic situation in which there are two zones, some drivers are available and other are busy in a Call. Here is not present any Reservation}
+\label{fig:alloyworldgeneric}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[width=\worldsWidth]{Alloy-AllAvailable}
+\centering
+\caption[Alloy World with all the Taxi Drivers Available]{This alloy world represent a particular situation in which all the Taxi Drivers are available. This is useful to see how the queue is implemented. Here is not present any Reservation}
+\label{fig:alloyworldallavailable}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[width=\worldsWidth]{Alloy-FreeDriver}
+\centering
+\caption[Alloy World with a Taxi Driver in a rest]{This alloy world represent a situation in which you can show all the possible states of a Taxi Driver: Driver 0 is available but has a reservation accepted, Driver 1 is available, Driver 2 is busy in a Call and Driver 3 is in a rest.
 }
-\end{lstlisting}
+\label{fig:alloyworldfreedriver}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[width=\worldsWidth]{Alloy-RideReservation}
+\centering
+\caption[Alloy World with some Ride Reservations]{This alloy world was mad to show a situation with some Ride Reservations mixed with Calls}
+\label{fig:alloyworldridereservation}
+\end{figure}
 
 \subsection{Software and Tools used}
 
@@ -1034,18 +1372,19 @@ abstract sig User {
 \newline (\url{https://ninjamock.com/})
 \item[Creately:] This web service helped us to create Use Case Diagrams.
 \newline (\url{https://creately.com})
-\item[Astah Professional:] We used this desktop application to create all the others UML Diagrams.
+\item[Astah Professional:] This desktop application was used to create all the others UML Diagrams.
 \newline (\url{http://astah.net/})
+\item[Signavio Academic:] This web application was used to create the BPMN diagrams
+\newline (\url{http://academic.signavio.com})
 \item[Alloy Analizer:] This tool was used to prove the consistency of our model.
 \newline (\url{http://alloy.mit.edu/alloy/})
 \end{description}
 
 \subsection{Hours of Work}
-We spent the following amount of hours for redacting this document:
+We spent the following amount of hours to redact this document:
 \begin{description}
-\item[Riva Luca:]
-\item[Strada Jacopo:]
+\item[Riva Luca:] 35
+\item[Strada Jacopo:] 35
 \end{description}
-\todo{Scrivere le ore!}
 
 \end{document}

@@ -2,6 +2,10 @@
 % Alloy mode for the LaTeX listings package.
 % This is public domain
 
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
 \lstdefinelanguage{alloy}{
   keywords={%
       assert, pred, all, no, lone, one, some, check, run,
@@ -9,79 +13,33 @@
       if, then, else, exactly, disj, fact, fun, module, abstract,
       extends, open, none, univ, iden, seq,
   },
-  literate=%
-    {:}{$\colon$}1
-    {|}{$\bullet$}1
-    {==}{$=$}1
-    {=}{$=$}1
-    {!=}{$\neq$}1
-    {&&}{$\land$}1
-    {||}{$\lor$}1
-    {<=}{$\le$}1
-    {>=}{$\ge$}1
-    {all}{$\forall$}1
-    {exists}{$\exists$}1
-    {!in}{$\not\in$}1
-    {\\in}{$\in$}1
-    {=>}{$\implies$}2
-    % the following isn't actually Alloy, but it gives the option to produce nicer latex
-    {|=>}{$\Rightarrow$}2
-    {<=set}{$\subseteq$}1
-    {+set}{$\cup$}1
-    {*set}{$\cap$}1
-    {==>}{$\Longrightarrow$}3
-    {<==>}{$\Longleftrightarrow$}4
-    {...}{$\ldots$}1
-    {\\hl}{$\hline$}1
-    {\\alpha}{$\alpha$}1
-    {\\beta}{$\beta$}1
-    {\\gamma}{$\gamma$}1
-    {\\delta}{$\delta$}1
-    {\\epsilon}{$\epsilon$}1
-    {\\zeta}{$\zeta$}1
-    {\\eta}{$\eta$}1
-    {\\theta}{$\theta$}1
-    {\\iota}{$\iota$}1
-    {\\kappa}{$\kappa$}1
-    {\\lambda}{$\lambda$}1
-    {\\mu}{$\mu$}1
-    {\\nu}{$\nu$}1
-    {\\xi}{$\xi$}1
-    {\\pi}{$\pi$}1
-    {\\rho}{$\rho$}1
-    {\\sigma}{$\sigma$}1
-    {\\tau}{$\tau$}1
-    {\\upsilon}{$\upsilon$}1
-    {\\phi}{$\phi$}1
-    {\\chi}{$\chi$}1
-    {\\psi}{$\psi$}1
-    {\\omega}{$\omega$}1
-    {\\Gamma}{$\Gamma$}1
-    {\\Delta}{$\Delta$}1
-    {\\Theta}{$\Theta$}1
-    {\\Lambda}{$\Lambda$}1
-    {\\Xi}{$\Xi$}1
-    {\\Pi}{$\Pi$}1
-    {\\Sigma}{$\Sigma$}1
-    {\\Upsilon}{$\Upsilon$}1
-    {\\Phi}{$\Phi$}1
-    {\\Psi}{$\Psi$}1
-    {\\Omega}{$\Omega$}1
-    {\\EOF}{\;}1
-    ,
   sensitive=true,  % case sensitive
   morecomment=[l]//,%
   morecomment=[l]{--},%
   morecomment=[s]{/*}{*/},%
   morestring=[b]",
   numbers=none,
-  firstnumber=1,
-  numberstyle=\tiny,
-  stepnumber=2,
-  basicstyle=\scriptsize\ttfamily,
-  commentstyle=\itshape,
-  keywordstyle=\bfseries,
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  commentstyle=\color{mygreen},    % comment style
+  keywordstyle=\color{blue},       % keyword style
+  stringstyle=\color{mymauve},     % string literal style
   ndkeywordstyle=\bfseries,
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  frame=single,	                   % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  firstnumber=1,
+  stepnumber=2,
+  numberstyle=\tiny,
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\color{mygray}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  tabsize=2,	                   % sets default tabsize to 2 spaces
 }
 
 % inline
