@@ -1,6 +1,5 @@
 // Import boolean utility
 open util/boolean
-
 // Primitive String Type
 sig Strings{}
 
@@ -8,12 +7,10 @@ sig Strings{}
 abstract sig User {
 	eMail: one Strings
 }
-
 // Taxi Driver
 sig Driver extends User {
 	isAvailable: one Bool
 }
-
 // Client
 sig Client extends User {
 }
@@ -37,7 +34,6 @@ sig Zone {
 sig TaxiCall {
 	client: one Client
 }
-
 // Call Confirmation made by a Taxi Driver and related to a Taxi Call
 sig CallConfirmation {
 	call: one TaxiCall,
@@ -48,7 +44,6 @@ sig CallConfirmation {
 sig RideRequest {
 	client: one Client
 }
-
 // Ride Confirmation made by a Taxi Driver and related to a Taxi Call
 sig RideReservationConfirmation {
 	request: one RideRequest,
