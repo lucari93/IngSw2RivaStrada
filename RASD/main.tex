@@ -41,14 +41,14 @@
 This document is meant to describe a software solution for the \emph{myTaxiService} problem. The document includes a description of the problem, functional and non-functional requirements and it is addressed to the IT department of the city administration.
 
 \subsection{Scope}
-The \emph{myTaxiService} software focus on helping the clients benefit from the service and ensure a fair management of taxi queues.
+The \emph{myTaxiService} software focuses on helping the clients benefit from the service and ensures a fair management of taxi queues.
 
 The software will:
 
 \begin{itemize}
-\item give the possibility to request a taxi either through a web application or a mobile app
+\item give the possibility to request a taxi either through a web application or a mobile app.
 \item compute the distribution of taxis in the various zones based on the GPS information it receives from each taxi.
-\item offer programmatic interfaces to enable the development of additional services
+\item offer programmatic interfaces to enable the development of additional services.
 \item allow to book a taxi by specifying the origin and the destination of the ride.
 \end{itemize}
 
@@ -67,7 +67,7 @@ The software will:
 \item Allow taxi drivers to set their state as \emph{available} or \emph{unavailable}
 \item Notify the taxi drivers about a client's request
 \item Allow taxi drivers to accept or decline a certain client's request
-\item Guarantees a fair management of taxi queues
+\item Guarantee a fair management of taxi queues
 \item Allow a user to reserve a taxi by specifying the origin and the destination of the ride at least two hours before
 \item Allow a driver to accept a client reservation
 \item Confirm the reservation to the user
@@ -77,7 +77,7 @@ The software will:
 \subsection{Glossary}
 \subsubsection{Definitions}
 \begin{description}
-\item[Client / Passenger / User :] Is a person who signed up this service and their interest is to call a taxi or reserve  a ride.
+\item[Client / Passenger / User :] Is a person who signed up for this service and their interest is to call a taxi or reserve  a ride.
 \item[Taxi Driver :] Is a person who drives a taxi and would like to be called or reserved for a ride through this service.
 \end{description}
 
@@ -86,7 +86,7 @@ The software will:
 \item[API:] Application Programming Interface
 \item[BPMN:] Business Process Model and Notation
 \item[CPU:] Central Processing Unit
-\item[GPS:] Global Position System
+\item[GPS:] Global Positioning System
 \item[HTTPS:] Hyper Text Transfer Protocol over Secure Socket Layer
 \item[IEEE:] Institute of Electrical and Electronics Engineers
 \item[IT:] Information Technology
@@ -123,7 +123,7 @@ The software will:
 The software will consist in three different user interfaces: two different apps for the clients and the taxi drivers and one web application. 
 
 In order to make this working there will be a web server containing the application logic and a DBMS that stores all the data (such as users' credentials, taxi's positions, taxi's availability \ldots).
-Mobile applications, web application and the server communicate through an internet connection.
+Mobile applications, web application and the server communicate through the Internet.
 
 The system will also provide programmatic interfaces for other new services. At the moment the city has not any similar system, so the application will be completely independent.
 \subsubsection{User interfaces}
@@ -242,7 +242,7 @@ Assumptions A8, A9, A10, A14 were made in order to avoid the risk of having an e
 
 \subsection{Apportioning of requirements}
 \begin{description}
-\item[Reporting:] A client may report the lack of service of a driver so that the government would be able to take action against the said driver. At the same time a driver may be able to report a client who misses fixed appointments, so that after few reclaims the client's account could be suspended or deactivated. 
+\item[Reporting:] A client may report the lack of service of a driver so that the city's government would be able to take action against the said driver. At the same time a driver may be able to report a client who misses fixed appointments, thus after few reclaims the client's account could be suspended or deactivated. 
 \item[Payments:] It would be interesting to give the client the possibility to pay the reservation service directly through the system, which could also provide an estimated price for the ride given the origin and the destination.
 \item[Taxi sharing:] An user may be ready to share a taxi, so the application could mark their requests in order to allow other clients to participate in the ride if they have a similar starting point and a similar destination. Obviously the advantage wold be the possibility to split the cost of the ride, which should be calculated by the system. The system should also compute the route for the taxi driver.
 \end{description}
@@ -257,7 +257,7 @@ Assumptions A8, A9, A10, A14 were made in order to avoid the risk of having an e
         \item Clients must provide a valid e-mail address. It will become the identifier for the account.
         \item Clients must provide their Name, Surname, Date of Birth and a valid Mobile Phone Number
         \item Clients must provide a password with a minimum length of 8 characters
-        \item User can not sign up twice
+        \item User cannot sign up twice
         \item Visitor can just see log in page and registration form
         \end{enumerate}
     \item
@@ -287,7 +287,7 @@ Assumptions A8, A9, A10, A14 were made in order to avoid the risk of having an e
         \item Users must be already logged in the application.
         \item Users must provide their position.
         \item If the position cannot be retrieved from GPS, the user will have to write the address manually.
-        \item If the position retrieved from GPS isn't correct or sufficiently precise, the user will have to confirm the detected position or provide the correct one.
+        \item If the position retrieved from GPS is not correct or sufficiently precise, the user will have to confirm the detected position or provide the correct one.
         \end{enumerate}
     \item
         \begin{enumerate}[label=\bfseries R\arabic*:]
@@ -370,7 +370,7 @@ Assumptions A8, A9, A10, A14 were made in order to avoid the risk of having an e
 \subsubsection{Performance Requirements}
 
 As already stated before, performance is  an important point for this application and so is also necessary to give an idea of the big amount of users who will be serviced by the application.
-From a little analysis we have derived that \emph{myTaxiService} has to handle at least 2 Millions of users on line in the same time.
+From a little analysis we have derived that \emph{myTaxiService} has to handle at least 2 Millions of users on line at the same time.
 
 The time of response must be less or equals to 1 second for at least 90\% of transactions.
 
@@ -378,9 +378,9 @@ The time of response must be less or equals to 1 second for at least 90\% of tra
 \nopagebreak
 \vbox{
 \begin{description}
-\item[Reliability:] The system is a work's provider for Taxi drivers and so it's important that no opportunities will be lost. \newline In order to make this will be implemented a system of acknowledge which guarantees that all notifications will arrive to their proper destination.
-\item[Availability:] This application may become a complete substitute of telephone taxi calls and so is very important that it will be always available. For doing so the system will be hosted on multiple servers in order to be resistant to some faults.]
-\item[Security:] The security on the communications is guaranteed by the use of HTTPS with SSL encryption. \newline Attacks are prevented thanks to a structure with more than one level of servers with always a firewall between them.
+\item[Reliability:] The system is a work's provider for Taxi drivers and so it is important not to loose any opportunity. \newline Keeping this in mind a system of acknowledge will be implemented and it will guarantee that all notifications will arrive to their proper destination.
+\item[Availability:] This application may become a complete substitute of telephone taxi calls and so it is very important that it will always be available. To do so the system will be hosted on multiple servers in order to be resistant to some faults.]
+\item[Security:] The security of the communications is guaranteed by the use of HTTPS with SSL encryption. \newline Attacks are prevented thanks to a structure with more than one level of servers with always a firewall between them.
 \end{description}
 }
 
@@ -398,7 +398,7 @@ What is presented is only a first idea of the applications that is useful for a 
 
 \subsubsection{Clients' User Interfaces}
 
-Here are shown mockups for the Client Application. In the project is also planned a website for them which is not represented here but it will have the same features proposed for the mobile application.
+Here are shown mockups for the Client Application. In the project it is also planned a website for them which is not represented here but it will have the same features proposed for the mobile application.
 
 \begin{figure}[H]
 \includegraphics[width=\mockupWidth]{Mockup-ClientsRegistration}
@@ -410,14 +410,14 @@ Here are shown mockups for the Client Application. In the project is also planne
 \begin{figure}[H]
 \includegraphics[width=\mockupWidth]{Mockup-ClientsLogin}
 \centering
-\caption[Clients Login Mockup]{Clients Login Mockup:\newline This page is used to login into the application. This is necessary for using every feature of the application.}
+\caption[Clients Login Mockup]{Clients Login Mockup:\newline This page is used to log in and use the application. This is necessary to use every feature of the application.}
 \label{fig:mockupclientlogin}
 \end{figure}
 
 \begin{figure}[H]
 \includegraphics[width=\mockupWidth]{Mockup-ClientsTaxiCall}
 \centering
-\caption[Clients Taxi Call Mockup]{Clients Taxi Call Mockup: \newline Here is presented the paged used for calling a taxi. The  position retrieved from the GPS (if available) is displayed on the map and written below. The client can use the \emph{Edit your Position} button in order to modify the place in which the taxi will arrive; for doing this is provided a page like the which one described in  \autoref{fig:mockupclientfindposition}.}
+\caption[Clients Taxi Call Mockup]{Clients Taxi Call Mockup: \newline Here is presented the paged used for calling a taxi. The  position retrieved from the GPS (if available) is displayed on the map and written below. The client can use the \emph{Edit your Position} button in order to modify the place in which the taxi will arrive; to do this is provided a page like the which one described in  \autoref{fig:mockupclientfindposition}.}
 \label{fig:mockupclienttaxicall}
 \end{figure}
 
@@ -456,14 +456,14 @@ The following mockups represent the key features of Taxi Drivers' Application.
 \begin{figure}[H]
 \includegraphics[width=\mockupWidth]{Mockup-TaxiDriversLogin}
 \centering
-\caption[Taxi Driver Login Mockup]{Taxi Driver Login Mockup:\newline This page is used to login into the application. This is necessary for using every feature of the application.}
+\caption[Taxi Driver Login Mockup]{Taxi Driver Login Mockup:\newline This page is used to log in and use the application. This is necessary to use every feature of the application.}
 \label{fig:mockuptaxidriverlogin}
 \end{figure}
 
 \begin{figure}[H]
 \includegraphics[width=\mockupWidth]{Mockup-TaxiDriversSetStatus}
 \centering
-\caption[Taxi Drivers Change State Mockup]{Taxi Drivers Change State Mockup: \newline This page is used by taxi drivers in order to set their availability state. To do this they have to click on \emph{Set as AVAILABLE} or \emph{Set as UNAVAILABLE} according to their real state. It isn't necessary to use this feature when a taxi driver accepts a call; their state will be set as unavailable automatically.}
+\caption[Taxi Drivers Change State Mockup]{Taxi Drivers Change State Mockup: \newline This page is used by taxi drivers in order to set their availability state. To do this they have to click on \emph{Set as AVAILABLE} or \emph{Set as UNAVAILABLE} according to their real state. It is not necessary to use this feature when a taxi driver accepts a call; their state will be set as unavailable automatically.}
 \label{fig:mockuptaxidriversetstatus}
 \end{figure}
 
@@ -536,7 +536,7 @@ The following mockups represent the key features of Taxi Drivers' Application.
 &   Not Registered Client
 \\ \hline
     \textbf{Entry Conditions}
-&   The Client isn't registered to the service.
+&   The Client is not registered to the service.
 \\ \hline
     \textbf{Flow of Events}
 & 
@@ -588,7 +588,7 @@ The following mockups represent the key features of Taxi Drivers' Application.
 &   Not Registered Taxi Driver
 \\ \hline
     \textbf{Entry Conditions}
-&   The Taxi Driver isn't registered to the service.
+&   The Taxi Driver is not registered to the service.
 \\ \hline
     \textbf{Flow of Events}
 & 
@@ -747,7 +747,7 @@ The following mockups represent the key features of Taxi Drivers' Application.
 \\ \hline
     \textbf{Exceptions}
 &   
-    There aren't exceptions for this use case.
+    There are not exceptions for this use case.
 \\ \hline
 \end{tabular}
 \end{center}
@@ -779,7 +779,7 @@ The following mockups represent the key features of Taxi Drivers' Application.
 \\ \hline
     \textbf{Exceptions}
 &   
-    There aren't exceptions for this use case.
+    There are not exceptions for this use case.
 \\ \hline
 \end{tabular}
 \end{center}
@@ -811,7 +811,7 @@ The following mockups represent the key features of Taxi Drivers' Application.
 \\ \hline
     \textbf{Exceptions}
 &   
-    There aren't exceptions for this use case.
+    There are not exceptions for this use case.
 \\ \hline
 \end{tabular}
 \end{center}
@@ -837,12 +837,12 @@ The following mockups represent the key features of Taxi Drivers' Application.
     \begin{enumerate*}
     \item The client clicks on the \emph{Ride Reservation} button in the menu
     \item The client has to set the following parameters
-        \begin{enumerate}
+        \begin{enumerate*}
         \item Origin
         \item Destination
         \item Date
         \item Time
-        \end{enumerate}
+        \end{enumerate*}
     \item The client clicks on the \emph{Reserve a Ride!} button
     \end{enumerate*}
 \\ \hline
@@ -851,11 +851,11 @@ The following mockups represent the key features of Taxi Drivers' Application.
 \\ \hline
     \textbf{Exceptions}
 &   An error will be shown if:
-    \begin{itemize}
+    \begin{itemize*}
     \item the origin is out of the city
     \item the date is in the past
-    \item the selected time isn't at least two hours after the current time
-    \end{itemize}
+    \item the selected time is not at least two hours after the current time
+    \end{itemize*}
 \\ \hline
 \end{tabular}
 \end{center}
@@ -920,7 +920,7 @@ The following mockups represent the key features of Taxi Drivers' Application.
 \\ \hline
     \textbf{Exceptions}
 &   
-    There aren't exceptions for this use case.
+    There are not exceptions for this use case.
 \\ \hline
 \end{tabular}
 \end{center}
@@ -952,7 +952,7 @@ The following mockups represent the key features of Taxi Drivers' Application.
 \\ \hline
     \textbf{Exceptions}
 &   
-    There aren't exceptions for this use case.
+    There are not exceptions for this use case.
 \\ \hline
 \end{tabular}
 \end{center}
@@ -989,7 +989,7 @@ The following mockups represent the key features of Taxi Drivers' Application.
 &  The availability state will be updated and the application will come back to the home.
 \\ \hline
     \textbf{Exceptions}
-&   Nothing will happen if the driver tries to select the same state in which they was before.
+&   Nothing will happen if the driver tries to select the same state in which they were before.
 \\ \hline
 \end{tabular}
 \end{center}
@@ -1030,7 +1030,7 @@ The following mockups represent the key features of Taxi Drivers' Application.
 &  The applications is showing the details and the taxi driver has to evaluate this request.
 \\ \hline
     \textbf{Exceptions}
-&   There aren't exceptions for this use case.
+&   There are not exceptions for this use case.
 \\ \hline
 \end{tabular}
 \end{center}
@@ -1110,7 +1110,7 @@ If the queue is ended, the client will receive a call rejection notification.
 &  The applications is showing the details and the taxi driver has to evaluate this request.
 \\ \hline
     \textbf{Exceptions}
-&   There aren't exceptions for this use case.
+&   There are not exceptions for this use case.
 \\ \hline
 \end{tabular}
 \end{center}
@@ -1254,14 +1254,14 @@ If all the taxi drivers have declined the request, a rejection will be sent to t
 
 \subsection{Alloy}
 
-We have used \emph{Alloy Analyzer} in our project to make a formal definition of the most important properties of our system. In the following sections is presented the model and the results derived using this tool.
+We have used the \emph{Alloy Analyzer} in our project to make a formal definition of the most important properties of our system. In the following sections the model and the results derived using this tool are presented.
 
 \newlength{\codeWidth}
 \setlength{\codeWidth}{\textwidth}
 
 \subsubsection{Signatures}
 
-Here are presented the signatures of our model. Some fields which haven't a relevant importance in term of constraint were omitted in order to make the model as simpler as possible.
+Here are presented the signatures of our model. Some fields which have not a relevant importance in term of constraint were omitted in order to make the model as simpler as possible.
 
 \nopagebreak
 \begin{minipage}[c]{\codeWidth}
@@ -1289,7 +1289,7 @@ The following code is a function used to write assertions in an easy way.
 
 \subsubsection{Assertions}
 
-Here the are some assertions to be checked in order to verify the model.
+Here there are some assertions to be checked in order to verify the model.
 
 \nopagebreak
 \begin{minipage}[c]{\codeWidth}
@@ -1316,7 +1316,7 @@ This is the main code of the model.
 
 \subsubsection{Output}
 
-The following screenshot represent the output geneted by \emph{Alloy Analyzer} starting from the code presented in the previous sections. It shows that the model is consistent.
+The following screenshot represents the output generated by \emph{Alloy Analyzer} starting from the code presented in the previous sections. It shows that the model is consistent.
 
 \nopagebreak
 \begin{figure}[H]
@@ -1328,7 +1328,7 @@ The following screenshot represent the output geneted by \emph{Alloy Analyzer} s
 
 \subsubsection{Worlds}
 
-The images in this section represent some \emph{Worlds} generate with \emph{Alloy Analyzer}. These \emph{Worlds} show some configurations of our system.
+The images in this section represent some \emph{Worlds} generated with \emph{Alloy Analyzer}. These \emph{Worlds} show some configurations of our system.
 
 \newlength{\worldsWidth}
 \setlength{\worldsWidth}{.9\textwidth}
@@ -1337,21 +1337,21 @@ The images in this section represent some \emph{Worlds} generate with \emph{Allo
 \begin{figure}[H]
 \includegraphics[width=\worldsWidth]{Alloy-Generic}
 \centering
-\caption[Alloy Generic World]{This alloy world represent a generic situation in which there are two zones, some drivers are available and other are busy in a Call. Here is not present any Reservation}
+\caption[Alloy Generic World]{This alloy world represents a generic situation in which there are two zones, some drivers are available and other are busy in a Call. Here is not present any Reservation}
 \label{fig:alloyworldgeneric}
 \end{figure}
 
 \begin{figure}[H]
 \includegraphics[width=\worldsWidth]{Alloy-AllAvailable}
 \centering
-\caption[Alloy World with all the Taxi Drivers Available]{This alloy world represent a particular situation in which all the Taxi Drivers are available. This is useful to see how the queue is implemented. Here is not present any Reservation}
+\caption[Alloy World with all the Taxi Drivers Available]{This alloy world represents a particular situation in which all the Taxi Drivers are available. This is useful to see how the queue is implemented. Here is not present any Reservation}
 \label{fig:alloyworldallavailable}
 \end{figure}
 
 \begin{figure}[H]
 \includegraphics[width=\worldsWidth]{Alloy-FreeDriver}
 \centering
-\caption[Alloy World with a Taxi Driver in a rest]{This alloy world represent a situation in which you can show all the possible states of a Taxi Driver: Driver 0 is available but has a reservation accepted, Driver 1 is available, Driver 2 is busy in a Call and Driver 3 is in a rest.
+\caption[Alloy World with a Taxi Driver in a rest]{This alloy world represents a situation in which you can show all the possible states of a Taxi Driver: Driver 0 is available but has a reservation accepted, Driver 1 is available, Driver 2 is busy in a Call and Driver 3 is at rest.
 }
 \label{fig:alloyworldfreedriver}
 \end{figure}
@@ -1359,7 +1359,7 @@ The images in this section represent some \emph{Worlds} generate with \emph{Allo
 \begin{figure}[H]
 \includegraphics[width=\worldsWidth]{Alloy-RideReservation}
 \centering
-\caption[Alloy World with some Ride Reservations]{This alloy world was mad to show a situation with some Ride Reservations mixed with Calls}
+\caption[Alloy World with some Ride Reservations]{This alloy world was made to show a situation with some Ride Reservations mixed with Calls}
 \label{fig:alloyworldridereservation}
 \end{figure}
 
@@ -1381,7 +1381,7 @@ The images in this section represent some \emph{Worlds} generate with \emph{Allo
 \end{description}
 
 \subsection{Hours of Work}
-We spent the following amount of hours to redact this document:
+We spent approximately the following amount of hours to redact this document:
 \begin{description}
 \item[Riva Luca:] 35
 \item[Strada Jacopo:] 35
