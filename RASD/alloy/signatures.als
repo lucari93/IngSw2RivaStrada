@@ -12,8 +12,7 @@ sig Driver extends User {
 	isAvailable: one Bool
 }
 // Client
-sig Client extends User {
-}
+sig Client extends User {}
 
 // Taxi Drivers Queue
 sig Queue {
