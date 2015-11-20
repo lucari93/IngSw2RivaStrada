@@ -10,12 +10,11 @@
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{color}
+\usepackage{multirow}
+\usepackage{algorithm}
+\usepackage{algorithmic}
 
 \graphicspath{ {img/} }
-
-% New page before new section
-\let\stdsection\section
-\renewcommand\section{\newpage\stdsection}
 
 % Set caption position
 \floatsetup[figure]{capposition=bottom}
@@ -32,9 +31,25 @@
 
 \tableofcontents
 
+\newpage
+
+\vfill
+
 \listoffigures 
 
+\vfill
+
 \listoftables
+
+\vfill
+
+\listofalgorithms
+
+\vfill
+
+% New page before new section
+\let\stdsection\section
+\renewcommand\section{\newpage\stdsection}
 
 \setlength{\parindent}{0em}
 \setlength{\parskip}{1em}
@@ -47,19 +62,72 @@ The purpose of this document is to explain as clearly as possible every factor t
 
 \subsection{Scope}
 In the document it is discussed the interaction between the system and the actors, at the same time it is possible to find a detailed description of the communication among various components of the system executing certain operations.
+
 \subsection{Glossary}
 \subsubsection{Definitions}
+
+\begin{description}
+\item[Client / Passenger / User :] Is a person who signed up for this service and their interest is to call a taxi or reserve  a ride.
+\item[Taxi Driver :] Is a person who drives a taxi and would like to be called or reserved for a ride through this service.
+\end{description}
+
 \subsubsection{Acronyms}
+
+\begin{description}
+\item[API:] Application Programming Interface
+\item[GPS:] Global Positioning System
+\item[GUI:] Graphic User Interface
+\item[HTTPS:] Hyper Text Transfer Protocol over Secure Socket Layer
+\item[IEEE:] Institute of Electrical and Electronics Engineers
+\item[IT:] Information Technology
+\item[UML:] Unified Modeling Language
+\end{description}
+
 \subsubsection{Abbreviations}
+
+\begin{description}
+\item[G\emph{n}:] Goal number \emph{n}
+\item[R\emph{n}:] Requirement number \emph{n}
+\end{description}
+
 \subsection{Reference Documents}
+
+\subsection{References}
+\begin{itemize}
+\item \emph{myTaxiDriver} Specification Document
+\item \emph{myTaxiDriver} Requirements and Specification Document
+\end{itemize}
 
 \subsection{Document Structure}
 
 \section{Architectural Design}
+
 \subsection{Overview}
+
+\emph{myTaxiService} system is, by its nature, a distributed application.
+In this section we're going to present the hardware and the software components which compose our system and how they interact between themselves.
+
 \subsection{High level components and their interaction}
 
+Looking at the system in a high-level view, it can be divided in a client side and in a server side.
+
+The \textbf{client side} is composed by a web browser or by a mobile application and represent the interface used by users to interact with the system. These clients are all \emph{thin}.
+
+The \textbf{server side} is made by a lot of components which can be divided between application logic and data storing. The application logic exposes an API for each component in order to allow the communication with our applications (or applications developed by others) throw the network.
+
+In the following sections we present all these components with the help of UML.
+
 \subsection{Component view}
+
+\vbox{
+The following diagram represent all the components of our system and how the are connected together.
+
+The two components \emph{myTaxiService MobileApp} and \emph{myTaxiService WebSite} are part of the client side, all the others belog to the server side.
+
+All the available interfaces are also represented.
+}
+
+\nopagebreak
 
 \begin{figure}[H]
 \includegraphics[width=.9\textwidth]{ComponentDiagram}
@@ -70,6 +138,12 @@ In the document it is discussed the interaction between the system and the actor
 
 \subsection{Deployment view}
 
+\vbox{
+The following diagram represent the hardware components of the system. For each piece of hardware is also shown what part of software runs on it referring to the components presented in the previous section.
+}
+
+\nopagebreak
+
 \begin{figure}[H]
 \includegraphics[width=.9\textwidth]{DeploymentDiagram}
 \centering
@@ -78,6 +152,8 @@ In the document it is discussed the interaction between the system and the actor
 \end{figure}
 
 \subsection{Runtime view}
+
+In this section, with some sequence diagrams, are shown the most important interactions between components.
 
 % Sequences Width
 \newlength{\sequenceWidth}
@@ -128,7 +204,8 @@ In the document it is discussed the interaction between the system and the actor
 \begin{figure}[H]
 \includegraphics[width=\sequenceWidth]{Sequence-FindAvailableDriver}
 \centering
-\caption{Find Available Driver UML Sequence Diagram}
+\caption[Find Available Driver UML Sequence Diagram]{Find Available Driver UML Sequence Diagram: \newline
+\centering For other details relative to this diagram you can see also \autoref{alg:findavailabledriver}}
 \label{fig:sequencefindavailabledriver}
 \end{figure}
 
@@ -154,38 +231,268 @@ In the document it is discussed the interaction between the system and the actor
 \end{figure}
 
 \subsection{Component Interfaces}
+
+\todo{Che cazzo sono?????????? chiedi al customer}
+
 \subsection{Selected Architectural Styles and Patterns}
 
+For this service was selected a \emph{three-tier} architecture: Data, Application Logic and GUI are separated and there are two levels of firewalls in order to keep a high level of security.
+
+In \autoref{fig:architecture} you can see a graphical representation of this architecture.
+
+\nopagebreak
+
+\begin{figure}[H]
+\includegraphics[width=.9\textwidth]{Architecture}
+\centering
+\caption{Architecture Representation}
+\label{fig:architecture}
+\end{figure}
+
+About the paradigm we decided to combine two important patterns: 
+\begin{itemize*}
+\item the \textbf{client-server}
+\item the \textbf{publisher-subscriber}
+\end{itemize*}
+
+The client server is used for all the communications which are composed by a request, made by the client, and a response, given by the server.
+
+The publisher-subscriber is needed for the notification service.
+
+\begin{figure}[H]
+\includegraphics[width=.65\textwidth]{Paradigm}
+\centering
+\caption{Paradigm Representation}
+\label{fig:paradigm}
+\end{figure}
+
+\section{Algorithm Design}
+
+\emph{myTaxiService} is not a very algorithmic system but there is a little part that is worth describing.
+This part is the managing of the queue when a call arrives and is presented in the following algorithm.
+
+\begin{center}
+\begin{minipage}{.8\textwidth}
+\begin{algorithm}[H]
+\caption{Find Available Driver}
+\label{alg:findavailabledriver}
+\algsetup{indent=2em}
+\begin{algorithmic}
+    
+    \REQUIRE the queue of a zone
+    \ENSURE the return value is the driver who accepted the ride or NULL if nobody accepted
+    
+    \FORALL {drivers in queue (only once)}
+        \STATE send a notification to the driver
+        \STATE wait for 30 seconds (or less if a response is received)
+        \IF {the driver has accepted}
+            \STATE remove driver from the queue
+            \STATE set driver state as \emph{unavailable}
+            \STATE send a notification to the client
+            \RETURN current driver
+        \ELSIF {the driver has rejected \OR the driver hasn't responded}
+            \STATE move the driver from the begin to the end of the queue
+        \ENDIF
+    \ENDFOR
+    \RETURN NULL
+\end{algorithmic}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+
 \section{Requirements traceability}
+
+\renewcommand{\arraystretch}{1.15}
+\def \customTableWidth{10cm}
+\newcolumntype{M}{>{\centering\arraybackslash} m{1.15cm} }
+
 \begin{table} [H]
 \begin{center}
-\begin{tabular}{ |m{.25\textwidth}|m{.65\textwidth}|  }
+\begin{tabular}{ |M|M|m{\customTableWidth}|  }
 \hline
-    \multicolumn{2}{|c|}{\textbf{\textit{The client receives a Taxi Call Confirmation}}} \\
-\hline \hline
-    \textbf{Actors}
-&   Registered Client
-\\ \hline
-    \textbf{Entry Conditions}
-&   The Client must be logged into the website or the application.
-\\ \hline
-    \textbf{Flow of Events}
-& 
-    \begin{enumerate*}
-    \item The client receives a notification
-    \item The app (or website) shows the number of the taxi which will arrive, the taxi driver's phone number and the waiting time
-    \end{enumerate*}
-\\ \hline
-    \textbf{Exit Conditions}
-&   The call will arrive in the specified waiting time.
-\\ \hline
-    \textbf{Exceptions}
-&   
-    There are not exceptions for this use case.
-\\ \hline
+    \multicolumn{2}{|c|}{\textbf{\textit{Requirement}}}
+&   \multicolumn{1}{c|}{\textbf{\textit{Designated system element}}}
+\\ 
+
+\hline
+\hline
+
+    \multirow{5}{*}{\textbf{G1}} & \textbf{R1} & \multirow{3}{*}{Validation made by the \textit{account manager}}\\
+    \cline{2-2} & \textbf{R2}&\\
+    \cline{2-2} & \textbf{R3}&\\
+    \cline{2-3} & \textbf{R4} & The \textit{account manager} checks if the e-mail address is already inside the \textit{Users DB} \\
+    \cline{2-3} & \textbf{R5} & \todo[inline]{todo}\\
+    
+    \hline
+    \hline
+    
+    \multirow{6}*{\textbf{G1}} & \textbf{R1} & \multirow{3}{\customTableWidth}{Validation made by the \textit{account manager}}\\
+    \cline{2-2} & \textbf{R2}&\\
+    \cline{2-2} & \textbf{R3}&\\
+    \cline{2-3} & \textbf{R4} & The \textit{account manager} checks if the driver license is inside the \textit{taxi drivers DB} \\
+    \cline{2-3} & \textbf{R5} & The \textit{account manager} checks if the e-mail address is already inside the \textit{Users DB}\\
+    \cline{2-3} & \textbf{R6} & \todo[inline]{todo}\\
+    
+    \hline
+    \hline
+    
+    \multirow{4}*{\textbf{G3}} & \textbf{R1} & \multirow{4}{\customTableWidth}{Validation made by the \textit{account manager}}\\
+    \cline{2-2} & \textbf{R2}&\\
+    \cline{2-2} & \textbf{R3}&\\
+    \cline{2-2} & \textbf{R4}&\\
+    
+    \hline
+    \hline
+    
+    \multirow{3}*{\textbf{G4}} & \textbf{R1} & \multirow{3}{\customTableWidth}{Validation made by the \textit{account manager}}\\
+    \cline{2-2} & \textbf{R2}&\\
+    \cline{2-2} & \textbf{R3}&\\
+    
+    \hline
+    \hline
+    
+    \multirow{4}*{\textbf{G5}} & \textbf{R1} & Validation made by the \textit{account manager}\\
+    \cline{2-3} & \textbf{R2}&\multirow{3}{\customTableWidth}{\textit{App} or \textit{browser} running on a device with enabled GPS and connected to the internet}\\
+    \cline{2-2} & \textbf{R3}&\\
+    \cline{2-2} & \textbf{R4}&\\
+
+    \hline
+    \hline
+    
+    \multirow{2}*{\textbf{G6}} & \textbf{R1} & Validation made by the \textit{account manager}\\
+    \cline{2-3} & \textbf{R2} & {The \textit{Queue manager} receives a positive answer from one of the taxi}\\
+    
+    \hline
+    \hline
+    
+    \multirow{2}*{\textbf{G7}} & \textbf{R1} & Validation made by the \textit{account manager}\\
+    \cline{2-3} & \textbf{R2} & {The \textit{Queue manager} receives a positive answer from one of the taxi}\\
+    
+    \hline
+    \hline
+    
+    \multirow{2}*{\textbf{G8}} & \textbf{R1} & Validation made by the \textit{account manager}\\
+    \cline{2-3} & \textbf{R2} & {Time out for the \textit{Queue manager} which was waiting for a positive answer}\\
+    
+    \hline
+    \hline
+    
+    \multirow{3}*{\textbf{G9}} & \textbf{R1} & Validation made by the \textit{account manager}\\
+    \cline{2-3} & \textbf{R2} & \textit{Driver app} running on their smartphone\\
+    \cline{2-3} & \textbf{R3} & \textit{Position utilities} stored driver position in the \textit{positions' DB}\\
+    
+    \hline
+    \hline
+    
+    \textbf{G10} & \textbf{R1} & Validation made by the \textit{account manager}\\
+    
+    \hline
+    
 \end{tabular}
 \end{center}
-\caption{Use Case Description of a Taxi Call Confirmation}
-\label{table:clientconfirmation}
+\label{table:requirementsTraceabilityPt1}
+\caption{Requirements traceability part 1}
 \end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{ |M|M|m{\customTableWidth}|  }
+\hline
+    \multicolumn{2}{|c|}{\textbf{\textit{Requirement}}}
+&   \multicolumn{1}{c|}{\textbf{\textit{Designated system element}}}
+\\ 
+
+    \hline
+    \hline
+
+    \multirow{4}*{\textbf{G11}} & \textbf{R1} & Validation made by the \textit{account manager}\\
+    \cline{2-3} & \textbf{R2} & \textit{Account manager} checks the \textit{users DB}\\
+    \cline{2-3} & \textbf{R3} & \textit{Queue manager} works with the \textit{position utilities} to select the right queue in the \textit{queue DB}\\
+    \cline{2-3} & \textbf{R4} & \textit{Notification manager} sends a notification to the {driver app}\\
+
+    \hline
+    \hline
+
+    \multirow{4}*{\textbf{G12}} & \textbf{R1} & Validation made by the \textit{account manager}\\
+    \cline{2-3} & \textbf{R2} & \textit{Account manager} checks the \textit{users DB}\\
+    \cline{2-3} & \textbf{R3} & \textit{Queue manager} updates driver's state working with the \textit{account manager} \\
+    \cline{2-3} & \textbf{R3} & \textit{Queue manager} works with the \textit{position utilities} to select the right queue in the \textit{queue DB}\\
+    
+    \hline
+    \hline
+
+    \multirow{4}*{\textbf{G13}} & \textbf{R1} & Zones are saved in the \textit{myTaxiServiceDB}\\
+    \cline{2-3} & \textbf{R2} & \multirow{3}{\customTableWidth}{\textit{Position utilities} locate drivers in a zone, \textit{queue manager} updates the zone's queue, the \textit{account manager} checks driver's state in the \textit{users DB}}\\
+    \cline{2-2} & \textbf{R3} &\\
+    \cline{2-2} & \textbf{R4} &\\
+    
+    \hline
+    \hline
+    
+    \multirow{11}*{\textbf{G14}} & \textbf{R1} & The \textit{call manager receives the taxi call}\\
+    \cline{2-3} & \textbf{R2} & \textit{Queue manager} works with the \textit{position utilities} to locate drivers in the zone, then the \textit{notification manager} sends the request to the first driver in the queue\\
+    \cline{2-3} & \textbf{R3} & The \textit{queue manager} receives a positive answer, then the \textit{notification manager} sends a notification to the client\\
+    \cline{2-3} & \textbf{R4} & The \textit{queue manager} wait for 30 seconds an answer from the first client then selects the second driver and asks to the \textit{notification manager} to send a message to them\\
+    \cline{2-3} & \textbf{R5} & The \textit{queue manager} updates the \textit{queue DB} positioning the driver at the bottom of their zone's queue \\
+
+    \hline
+    \hline
+    
+    \multirow{3}*{\textbf{G15}} & \textbf{R1} & Validation made by the \textit{account manager}\\
+    \cline{2-3} & \textbf{R2} & \multirow{2}{\customTableWidth}{Validation made by the \textit{reservation manager}}\\
+    \cline{2-2} & \textbf{R3} &\\
+
+    \hline
+    \hline
+    
+    \multirow{7}*{\textbf{G16}} & \textbf{R1} & The \textit{reservation manager} receives the client's reservation\\
+    \cline{2-3} & \textbf{R2} & The \textit{reservation manager} retrieves the driver's accounts from the \textit{account manager}, then asks the \textit{notification manager} to send the reservation details\\
+    \cline{2-3} & \textbf{R3} & \multirow{2}{\customTableWidth}{The \textit{reservation manager} waits an answer for 30 minutes, then it interrupts the reservation process}\\
+    \cline{2-2} & \textbf{R4} &\\
+    \cline{2-3} & \textbf{R5} & If the \textit{reservation manager} receives a confirmation it asks the \textit{notification manager} to notify the client\\
+    \cline{2-3} & \textbf{R6} & The \textit{reservation manager} asks the \textit{notification manager} to notify the client of the rejection of the reservation if 30 minutes have passed and no driver answered positively\\
+    \cline{2-3} & \textbf{R7} & The \textit{reservation manager} asks the \textit{notification manager} to notify the drivers 10 minutes before the time of the reservation they accepted\\
+
+    \hline
+    \hline
+
+    \textbf{G17} & \textbf{R1} & The \textit{account manager} updates the position and the state of the driver's in the \textit{users DB}\\
+    
+    \hline
+
+
+        
+
+\end{tabular}
+\end{center}
+\label{table:requirementsTraceabilityPt2}
+\caption{Requirements traceability part 2}
+\end{table}
+
+
+
+\section{References}
+\todo{?!?!?!?}
+
+\section{Appendix}
+
+\subsection{Software and Tools used}
+
+\begin{description}
+\item[ShareLatex:] This web application was used to redact this document in a collaborative way. 
+\newline (\url{https://it.sharelatex.com/})
+\item[Astah Professional:] This desktop application was used to create all the others UML Diagrams.
+\newline (\url{http://astah.net/})
+\end{description}
+
+\subsection{Hours of Work}
+We spent approximately the following amount of hours to redact this document:
+\todo{Add hours of work}
+\begin{description}
+\item[Riva Luca:] 
+\item[Strada Jacopo:] 
+\end{description}
+
+
 \end{document}
