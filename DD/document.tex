@@ -26,6 +26,10 @@
 \begin{document}
 
 \maketitle
+\vfill
+\begin{flushright}
+Version 1.0
+\end{flushright}
 
 \newpage
 
@@ -80,6 +84,7 @@ In the document it is discussed the interaction between the system and the actor
 \item[HTTPS:] Hyper Text Transfer Protocol over Secure Socket Layer
 \item[IEEE:] Institute of Electrical and Electronics Engineers
 \item[IT:] Information Technology
+\item[RASD: ] Requirements and Specification Document
 \item[UML:] Unified Modeling Language
 \end{description}
 
@@ -91,14 +96,17 @@ In the document it is discussed the interaction between the system and the actor
 \end{description}
 
 \subsection{Reference Documents}
-
-\subsection{References}
 \begin{itemize}
 \item \emph{myTaxiDriver} Specification Document
 \item \emph{myTaxiDriver} Requirements and Specification Document
 \end{itemize}
 
 \subsection{Document Structure}
+In the second chapter of the document the architectural design of the system is explained by using UML diagrams and a graphic representation of the paradigms employed. 
+
+In the third paragraph it is possible to find the pseudo-code of the queue management.
+
+In the fifth paragraph is demonstrated how all the requirements presented in the RASD are effectively satisfied by the system, showing which component is responsible for every specific task.
 
 \section{Architectural Design}
 
@@ -118,6 +126,18 @@ The \textbf{server side} is made by a lot of components which can be divided bet
 In the following sections we present all these components with the help of UML.
 
 \subsection{Component view}
+
+Here we're going to present all the components of \emph{myTaxiService} system and their interfaces:
+
+\begin{description}
+\item[Data Base:] This component is used to store all the information about users, zones, queues and  drivers positions. An interface for each type of information stored is offered by this component.
+\item[Account Manager:] All the users are managed by this component. It is responsible for logins and registrations. It has to check all the constraint (user age, driver license, \ldots) when a user would like to sign up. It is used also for changing taxi drivers state.
+\item[Call Manager:] Every taxi call is sent to this component. It has to handle the whole process that will bring to the assignment of a call to a specific driver. In order to do this it has to interact with a lot of others components: first of all using the Position Utility the system has to get the correct zone from the client position, then the Queue Manager has to return an available driver in the current zone and finally with the Notification Manager a notification is sent to the client in order to confirm the request.
+\item[Queue Manager:] This component is in charge of managing the driver's queues, which are stored in the system's database. Its job is to select the right queue for a given zone and return the first driver in the queue, in case of rejection by the first driver it moves them to the last position in the queue: see \hyperref[sec:sec3]{\underline{section 3}}  for further details.
+\item[Reservation Manager:] The reservation manager receives requests for a reservation and checks if it is valid (time and route using the Position Utilities). If a reservation is valid and a taxi driver accepts it, this component will store the reservation in the database.
+\item[Notification Manager:] The notification manager is employed in order to communicate with drivers and clients, for example when the system receives a call requests and it needs to forward it to an available driver or when a reservation is accepted and the system has to notify the client.
+\item[Position Utilities:] The Position Utilities is used in order to retrieve a zone from ad address, calculate an extimated time for a call or validate a path for a reservation.
+\end{description}
 
 \vbox{
 The following diagram represent all the components of our system and how the are connected together.
@@ -232,7 +252,39 @@ In this section, with some sequence diagrams, are shown the most important inter
 
 \subsection{Component Interfaces}
 
-\todo{Che cazzo sono?????????? chiedi al customer}
+\begin{description}
+\item[Data Base:]
+\item[Account Manager:] \
+\begin{itemize*}
+    \item \textit{login(mail, password)}
+    \item \textit{registerClient(email, firstName, lastName, telephoneNumber, password)}
+    \item \textit{registerDriver(email, firstName, lastName, telephoneNumber, license, password)}
+    \item To receive information about an user: \textit{userInfo(email)}
+    \item To change a driver state when they are taking a call: \textit{changeDriverState(email, state)}
+\end{itemize*}
+\item[Call Manager:]\
+\begin{itemize*}
+    \item To call a taxi: \textit{forwardCall(email, GPSPosition)}
+    \item To show the details of a call (should be used by a driver): \textit{showCallDetails(call)}
+\end{itemize*}
+\item[Queue Manager:]\
+\begin{itemize*}
+    \item To retrieve the drivers' queue of a certain zone: \textit{driversQueue(zone)}
+\end{itemize*}
+\item[Reservation Manager:]\
+\begin{itemize*}
+    \item \textit{newReservation(email, origin, destination, time)}
+    \item to show the details of a reservation: \textit{showReservationDetails(reservation)}
+\end{itemize*}
+\item[Notification Manager:]\
+\begin{itemize*}
+    \item \textit{sendNotification(list\textless email \textgreater, message)} 
+\end{itemize*}
+\item[Position Utilities:]\
+\begin{itemize*}
+    \item to find the zone associated to a given coordinate: \textit{findZone(GPSCoordinate)}
+\end{itemize*}
+\end{description}
 
 \subsection{Selected Architectural Styles and Patterns}
 
@@ -267,6 +319,7 @@ The publisher-subscriber is needed for the notification service.
 \end{figure}
 
 \section{Algorithm Design}
+\label{sec:sec3}
 
 \emph{myTaxiService} is not a very algorithmic system but there is a little part that is worth describing.
 This part is the managing of the queue when a call arrives and is presented in the following algorithm.
@@ -300,11 +353,13 @@ This part is the managing of the queue when a call arrives and is presented in t
 \end{minipage}
 \end{center}
 
+\section{User Interface Design}
+A complete description of how the user interfaces of our system will look like was already included in our \emph{Requirements and Specification Document} document. You can find it in Section 3.3 \emph{External Interfaces} of the specified document.
 
 \section{Requirements traceability}
 
 \renewcommand{\arraystretch}{1.15}
-\def \customTableWidth{10cm}
+\def \customTableWidth{12cm}
 \newcolumntype{M}{>{\centering\arraybackslash} m{1.15cm} }
 
 \begin{table} [H]
@@ -322,17 +377,17 @@ This part is the managing of the queue when a call arrives and is presented in t
     \cline{2-2} & \textbf{R2}&\\
     \cline{2-2} & \textbf{R3}&\\
     \cline{2-3} & \textbf{R4} & The \textit{account manager} checks if the e-mail address is already inside the \textit{Users DB} \\
-    \cline{2-3} & \textbf{R5} & \todo[inline]{todo}\\
+    \cline{2-3} & \textbf{R5} & The \textit{account manager} checks if the e-mail address is already inside the \textit{Users DB} and the app or browser shows only the login page and the registration form\\
     
     \hline
     \hline
     
-    \multirow{6}*{\textbf{G1}} & \textbf{R1} & \multirow{3}{\customTableWidth}{Validation made by the \textit{account manager}}\\
+    \multirow{6}*{\textbf{G2}} & \textbf{R1} & \multirow{3}{\customTableWidth}{Validation made by the \textit{account manager}}\\
     \cline{2-2} & \textbf{R2}&\\
     \cline{2-2} & \textbf{R3}&\\
     \cline{2-3} & \textbf{R4} & The \textit{account manager} checks if the driver license is inside the \textit{taxi drivers DB} \\
     \cline{2-3} & \textbf{R5} & The \textit{account manager} checks if the e-mail address is already inside the \textit{Users DB}\\
-    \cline{2-3} & \textbf{R6} & \todo[inline]{todo}\\
+    \cline{2-3} & \textbf{R6} & The \textit{account manager} checks if the e-mail address is already inside the \textit{Users DB} and the app or browser shows only the login page and the registration form\\
     
     \hline
     \hline
@@ -469,8 +524,6 @@ This part is the managing of the queue when a call arrives and is presented in t
 \label{table:requirementsTraceabilityPt2}
 \caption{Requirements traceability part 2}
 \end{table}
-
-
 
 \section{References}
 \todo{?!?!?!?}
