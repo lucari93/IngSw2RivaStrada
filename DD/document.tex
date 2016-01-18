@@ -28,7 +28,7 @@
 \maketitle
 \vfill
 \begin{flushright}
-Version 1.0
+Version 1.1
 \end{flushright}
 
 \newpage
@@ -283,6 +283,8 @@ In this section, with some sequence diagrams, are shown the most important inter
 \item[Queue Manager:]\
 \begin{itemize*}
     \item To retrieve the drivers' queue of a certain zone: \textit{driversQueue(zone)}
+    \item addDriver(email, queue) to add a driver in a specific queue
+    \item removeDriver(email) to remove the driver from the queue in which they are in
 \end{itemize*}}\samepage{
 \item[Reservation Manager:]\
 \begin{itemize*}
@@ -296,6 +298,7 @@ In this section, with some sequence diagrams, are shown the most important inter
 \item[Position Utilities:]\
 \begin{itemize*}
     \item to find the zone associated to a given coordinate: \textit{findZone(GPSCoordinate)}
+    \item getDriverPosition(email) to get GPS coordinates of the driver
 \end{itemize*}}
 \end{description}
 
@@ -558,6 +561,13 @@ We spent approximately the following amount of hours to redact this document:
 \begin{description}
 \item[Riva Luca:] 29
 \item[Strada Jacopo:] 29
+\end{description}
+
+\section{Revisions}
+
+\begin{description}
+    \item[v1.0:] First final revision
+    \item[v1.1:] Added some missing methods to \emph{Component Interfaces}
 \end{description}
 
 
