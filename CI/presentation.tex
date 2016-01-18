@@ -1,0 +1,451 @@
+\documentclass[9pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{mdwlist}
+\usepackage{floatrow}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{xparse}
+\usepackage{nameref}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{java}
+
+\graphicspath{ {img/}}
+
+\NewDocumentCommand{\mycode}{s O{1.0} m m}{
+    \nopagebreak
+    \IfBooleanTF{#1}{\vspace{-#2\baselineskip}}{}
+    
+    \vspace{1pt}
+    \vbox{
+    \lstinputlisting[
+            linerange={#3-#4},
+            firstnumber=#3
+            ]{src/DDLGenerator.java}
+    }
+}
+
+\makeatletter
+\newcommand*{\currentname}{\@currentlabelname}
+\makeatother
+
+\newcounter{saveenumi}
+\newcommand{\seti}{\setcounter{saveenumi}{\value{enumi}}}
+\newcommand{\conti}{\setcounter{enumi}{\value{saveenumi}}}
+
+\usetheme{Boadilla}
+\usecolortheme{whale}
+\beamertemplatenavigationsymbolsempty 
+\setbeamersize{text margin left=1em,text margin right=1em}
+
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Table of Contents}
+		\setcounter{tocdepth}{1}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\title{Code Inspection}
+\author{Jacopo Strada, Luca Riva}
+\date{December 9, 2015}
+
+\begin{document}
+
+\maketitle
+
+\section{Analyzed Class: DDLGenerator}
+\begin{frame}{\currentname}
+
+It is possible to find the inspected class at this path:
+
+\begin{centering}
+\textit{appserver/persistence/cmp/generator-database/src/main/java/com/sun/jdo\\/spi/persistence/generator/database/DDLGenerator.java}
+\end{centering}
+
+\vfill
+
+\underline{\textbf{Methods}}:
+
+\begin{itemize}
+\item generateDDL (public static)
+\item generateSQL (private static)
+\item createCreateTableDDL (private static)
+\end{itemize}
+
+\end{frame}
+
+\section{Functional Role}
+
+\begin{frame}{\currentname}
+
+\textit{DDLGenerator} is a so-called \textbf{utility class} because it has only static methods. For this reason, we are going to explain the role of the only public method present.
+\vfill
+The "public static void" method \underline{\textit{generateDDL}} is used in order to create a DDL from a given schema and database vendor name. In fact the method requires a \textit{SchemaElement} and a \textit{String}, which is the vendor name, as parameters, in addition to them are required the various \textit{OutputStreams} for the data elaborated by the function. The \textit{dbStream} could also be null and, in this case, the method will not directly perform the operations on the database. Also a boolean is required and it must be set to TRUE in order to drop all the tables before creating new ones.
+Requesting this high number of output streams is a way to have multiple return values and leave to the caller the possibility of choosing if they would like to associate a stream to a file or to another component.
+
+\mycode{127}{130}
+
+\end{frame}
+
+\section{Issues}
+
+\subsection{Naming Conventions}
+
+\begin{frame}[allowframebreaks]{\currentname}
+
+\begin{alertblock}{Meaningful Names}
+"tbl" and "table" are used as alternatives, it could be better to always use the same name, for clarity "table".
+\mycode {130}{130}
+\mycode {145}{145}
+
+The same consideration can be done for "stmt" that is often used instead of "statement"
+\mycode{165}{165}
+\end{alertblock}
+
+\begin{exampleblock}{One-character Variables}
+
+Used temporarily only for loops, respecting the conventions.
+
+\end{exampleblock}
+
+\begin{alertblock}{Acronyms}
+The acronym "Structured Query Language" is sometimes indicated as "SQL" and sometimes as "Sql", while "Data Definition Language" is always indicated as "DDL". Even though this is not a specific violation of the java naming convention it should be better to use only one way. Using "Ddl" and "Sql" could probably be the best solution as also in the following example it would be possible to emphasize the separation of the two acronyms: "createDdlSql" instead of "createDDLSql".
+\mycode {128}{128}
+\end{alertblock}
+
+\begin{exampleblock}{Constants}
+Constants are correctly declared using capitalized words separated by an underscore.
+\mycode{67}{83}
+\end{exampleblock}
+
+\end{frame}
+
+
+\subsection{Indention}
+
+\begin{frame}{\currentname}
+
+In the code are usually used 4 spaces for indentation.
+
+\begin{alertblock}{Indentation with tabs}
+
+Sometimes tabs are used as you can see (notice the arrow):
+\mycode{346}{346}
+
+\end{alertblock}
+\end{frame}
+
+\subsection{Braces}
+
+\begin{frame}{\currentname}
+
+In the code is used the “Kernighan and Ritchie" style for bracing, also for one statement only conditions.
+
+\mycode{226}{228}
+
+\end{frame}
+
+\subsection{File Organization}
+
+\begin{frame}[allowframebreaks]{\currentname}
+\begin{exampleblock}{Blank lines and optional comments}
+The sections are correctly separated with spaces and the methods have also comments above as separators.
+Example:
+\mycode{390}{404}
+\end{exampleblock}
+
+\begin{alertblock}{Line length}
+Sometimes the line length exceeds 80 characters also if it is not needed. Some examples are reported below (line 139 and 195 go to the next line in the document because are too long):
+\mycode{139}{140}
+\mycode{193}{198}
+\end{alertblock}
+
+\end{frame}
+
+\subsection{Wrapping Lines}
+
+\begin{frame}{\currentname}
+\begin{exampleblock}{}
+Lines are correctly wrapped by the Oracle conventions.
+\end{exampleblock}
+\end{frame}
+
+\subsection{Comments}
+
+\begin{frame}{\currentname \ I}
+
+\begin{alertblock}{Javadoc is present but often parameters are missing or present with a wrong name}
+"createSql" at line 193, "dropDDLSql" insted of "dropSQL" at lines 176 and 194 
+\mycode{173}{189}
+\mycode{193}{194}
+\end{alertblock}
+
+\end{frame}
+
+\begin{frame}{\currentname \ II}
+
+\begin{alertblock}{Errors}
+In the following example are also present comments (lines 190-192) that state the errors present in the javadoc.
+
+\mycode{190}{192}
+
+\end{alertblock}
+
+\vfill
+
+\begin{exampleblock}{Commented out code}
+Commented out code is not present in the analyzed methods.
+\end{exampleblock}
+
+\end{frame}
+
+\subsection{Java Source Files}
+
+\begin{frame}{\currentname}
+
+\begin{exampleblock}{Only one public class per file and the public class is the first one}
+The analyzed file contains exactly one class and it is obviously the first one.
+\end{exampleblock}
+
+
+\begin{exampleblock}{Enternal Program Interfaces}
+The public method of this class is implemented consistently with what is described in the javadoc.
+\end{exampleblock}
+
+\begin{alertblock}{Javadoc for private methods}
+The javadoc is also present for all the private methods in the analyzed part but, as stated already before, sometimes it is wrong.
+\end{alertblock}
+\end{frame}
+
+
+\subsection{Package and Import Statements}
+
+\begin{frame}{\currentname}
+\begin{exampleblock}{}
+The package statement is the first of the file present at line 47 because before some javadoc is present.
+In the following lines there are import statements placed correctly.
+\mycode{47}{53}
+\end{exampleblock}
+\end{frame}
+
+\subsection{Class and Interface Declarations}
+
+\begin{frame}[allowframebreaks]{\currentname}
+
+In the following lines it is summarised the declaration order present in this file.
+
+\vfill
+
+\textbf{Class documentation comment:}
+\mycode{60}{64}
+
+\vfill
+
+\textbf{Class statement:}
+\mycode{65}{65}
+
+\vfill
+
+\textbf{Class static variables} (only "private static final" are present)\textbf{:}
+\mycode{68}{68}
+
+\vfill
+
+\textbf{Instace Variables:}
+No instance variables are present.
+
+\vfill
+
+\textbf{Constructor:}
+The constructor is not present, it would be better to add a private constructor in order to ensure the impossibility to instantiate the class.
+
+\vfill
+
+\textbf{Methods:}
+\mycode{127}{131}
+\mycode{127}{131}
+\ldots
+\mycode{332}{333}
+\begin{exampleblock}{Declaration Order}
+All the declarations of classes, methods and variables are present in a java compliant order.
+\end{exampleblock}
+
+\begin{alertblock}{Duplicates: Big duplicates are not really present but \ldots}
+There is a little piece of code that may be reduced creating a new method.
+\mycode{209}{215}
+\mycode{218}{224}
+The code is different only because of the looped list (alterDropConstraintsDDL vs dropAllTblDDL).
+\end{alertblock}
+
+\end{frame}
+\begin{frame}{\currentname \ IV}
+
+\begin{exampleblock}{Methods Length}
+The longest method is \emph{generateSql} that is 96 lines long. It is quite long but analyzing it is clear that it is not complex at all and simple to understand. 
+\end{exampleblock}
+
+\vfill
+
+\begin{exampleblock}{Class Length}
+The class containing the methods assigned to us is 567 lines long. This is not a very small number but looking at the class is clear that it is really doing only one thing and it is the most important feature of a class. Being all the methods static it is very easy to split it in more classes but doing this will only bring a lack of readability.
+\end{exampleblock}
+
+\vfill
+
+\begin{exampleblock}{Cohesion}
+Cohesion is good because the class has a specific single task and all its methods are used for its unique scope.
+\end{exampleblock}
+
+\end{frame}
+\begin{frame}{\currentname \ V}
+
+\begin{block}{Methods Grouping}
+For this class does not make much sense to speak about methods grouping because the class consist in only one \emph{public static} method and all the other methods, which are private, are obviously used by the first one. For this reason all the methods present in this class are strictly related between each other.
+\end{block}
+
+\vfill
+
+\begin{block}{Breaking Encapsulation}
+It makes no sense to speak about breaking encapsulation for this class because it has no attributes that may be exposed.
+\end{block}
+
+\vfill
+\begin{exampleblock}{Independence}
+The class is completely independent because it uses only basic classes of java and classes in the same package so it is not present the problem of coupling.
+\end{exampleblock}
+
+\end{frame}
+
+\subsection{Initialization and Declarations}
+\begin{frame}[allowframebreaks]{\currentname}
+
+\begin{exampleblock}{Variables and class members are of the correct type}
+Variables are of the correct type and generally referenced to their object after the declaration. 
+In two cases there is a reference to "null", but the value of those variables depends on later computation, which is also managed by a "try-finally" structure. The constructors are properly called.
+
+\mycode{200}{207}
+\mycode{280}{285}
+\end{exampleblock}
+
+\begin{alertblock}{Declarations appear at the beginning of blocks}
+In this method it is possible to notice that not all the variables are declared at the beginning of the block and that there is a method's call between the two groups of declarations.
+\mycode{332}{344}
+\end{alertblock}
+
+\begin{block}{Generics}
+There are a few list declarations without the use of generics which were introduced in Java 5 (2004), but this class was created in 2003.
+\mycode{138}{138}
+\end{block}
+
+\end{frame}
+\subsection{Method Calls}
+
+\begin{frame}[allowframebreaks]{\currentname}
+
+For checking that methods are called with the correct parameters in the correct order we have to compare the call with the signature. Problems can exist only when there are two parameters of the same type because otherwise an error at compile time is suddenly presented. \newline
+Here is an example in which errors cannot be present: 
+\mycode{152}{152}
+\mycode{332}{333}
+
+Instead below you can see a method that may cause problems if not called properly because there are two parameters of the same type, no errors will be presented neither at compile time nor at run time but it will produce wrong files:
+\mycode{298}{299}
+
+\framebreak
+
+\begin{exampleblock}{In the analyzed code all the methods are called correctly.}
+
+Checking the code we have not found methods called wrongly due to the presence of another one with a similar name.
+\end{exampleblock}
+
+\begin{exampleblock}{Returned values are used properly}
+The only method with a return value is the following one:
+\mycode{332}{333}
+The return type is an array of Strings and the method is used only once. That time the return value is simply added in a list. So, no misuses of return values are present.
+\end{exampleblock}
+
+\end{frame}
+\subsection{Arrays}
+
+\begin{frame}{\currentname}
+
+\begin{exampleblock}{}
+All the arrays are correctly used. 
+
+In fact, as you can see from the code below, the loop is initialized from zero in order to respect the array indexing.
+\mycode{145}{149}
+\end{exampleblock}
+\end{frame}
+
+\subsection{Object Comparison}
+\begin{frame}{\currentname}
+\begin{exampleblock}{Equals insted of ==}
+All the objects are correctly compared using the \emph{equals} method instead of \emph{==}.
+\end{exampleblock}
+\end{frame}
+
+
+\subsection{Output Format}
+\begin{frame}{\currentname}
+This piece of code doesn't generate a \emph{System out} output but generates a \emph{Stream}. 
+
+\begin{exampleblock}{Output is free of spelling and grammatical errors}
+The only words present as \emph{Strings}, which are responsible of errors, are declared as global variables and it is very easy to check that they are correct. Spaces and commas are correctly interposed.
+\end{exampleblock}
+
+\begin{block}{Error messages aren't present}
+Errors are never handled and so only well known java exceptions are thrown to the caller without adding details about the error.
+\end{block}
+
+\end{frame}
+
+\subsection{Computation, Comparisons and Assignments}
+\begin{frame}{\currentname}
+
+\begin{exampleblock}{Arithmetic operators}
+In these functions there is not a vast use of arithmetic operators, the used ones are "!=" and "\textless" respectively for comparisons with "Null" and cycles' termination management. The operators are always used correctly. There are no try-catch structures but only try-finally.
+\end{exampleblock}
+
+\end{frame}
+
+\subsection{Exceptions}
+\begin{frame}{\currentname}
+
+The relevant exceptions present in the analyzed code are: 
+\emph{DBException}, \emph{SQLException} and \emph{IOException}.
+
+All of them are not caught but only thrown to the caller; only sometimes a finally statement is present in order to always execute some necessary commands for closing streams.
+\end{frame}
+
+\subsection{Flow of Control}
+\begin{frame}{\currentname}
+There are no switch case constructs in the analyzed class.
+
+There are only \emph{for} loops in the analyzed code, so, for their nature, it is very easy to verify initializations, increments and exit conditions. All the loops are formed correctly.
+\end{frame}
+
+\section{Other Problems}
+\begin{frame}[allowframebreaks]{\currentname}
+
+Analyzing the code we have found some other extracts which are not wrong but their construction could make some problems difficult to debug.
+
+\begin{block}{}
+The first problem occurs when a null \emph{schema} is passed in the \emph{generateDDL} method. In this case the method do nothing and return immediately. 
+\mycode{127}{133}
+\ldots
+\mycode{170}{171}
+It would be better if an else statement was added in order to throw an exception specifying the problem.
+\end{block}
+
+
+\begin{block}{}
+Another problem like the one just described is the behavior of the same method when a null \emph{dbVendorName} or a vendor name not supported is passed. In the null case the default one (SQL92) is used, instead, if the vendor name is not supported an \emph{IOException} is thrown. This things are not specified in the javadoc as well as the list of supported vendors and the exception is not clear at all.
+\end{block}
+
+\end{frame}
+\end{document}
