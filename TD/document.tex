@@ -1,0 +1,922 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{fullpage}
+\usepackage{enumitem}
+\usepackage{todonotes}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{mdwlist}
+\usepackage{floatrow}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{multirow}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+
+\graphicspath{ {img/} }
+
+% Set caption position
+\floatsetup[figure]{capposition=bottom}
+
+\title{{\Huge myTaxiService} \\ Integration Document}
+\author{Jacopo Strada \and Luca Riva}
+\date{January 21, 2016}
+
+\begin{document}
+
+\maketitle
+\vfill
+\begin{flushright}
+Version 1.0
+\end{flushright}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\listoffigures
+
+\listoftables
+
+
+% New page before new section
+\let\stdsection\section
+\renewcommand\section{\newpage\stdsection}
+
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1em}
+
+\section{Introduction}
+
+\subsection{Purpose}
+The purpose of this document is to guide through the integration testing of the various components described in the DD. In order to do this diagrams and tables are provided, so that it is possible to understand the approach selected for this kind of testing.
+
+\subsection{Scope} 
+As properly described in the RASD this system was conceived in order to create an efficient platform to easily call or reserve a taxi, improving the quality of service for the clients and simplifying the job of the drivers. The scope of the tests in this document are meant to guarantee the right functioning of the system's components, assuming that the more specific unit tests have already been made, as reported in the entry criteria.
+
+\subsection{Glossary}
+
+
+\subsubsection{Definitions}
+
+\begin{description}
+\item[Client / Passenger / User :] Is a person who signed up for this service and their interest is to call a taxi or reserve  a ride.
+\item[Taxi Driver :] Is a person who drives a taxi and would like to be called or reserved for a ride through this service.
+\item[Driver:] A software component or test tool that replaces a component that takes care of the control and/or the calling of a component or system
+\item[Stub:] A skeletal or special-purpose implementation of a software component, used to develop or test a component that calls or is otherwise dependent on it. It replaces a called component.
+\end{description}
+
+\subsubsection{Acronyms}
+
+\begin{description}
+\item[GPS:] Global Positioning System
+\item[DD:] Design Document
+\item[RASD: ] Requirements and Specification Document
+\end{description}
+
+\subsubsection{Abbreviations}
+
+\begin{description}
+\item[IT\emph{n}:] Integration Test number \emph{n}
+\end{description}
+
+\subsection{Reference Documents}
+\begin{itemize}
+\item \emph{myTaxiDriver} Specification Document
+\item \emph{myTaxiDriver} Requirements and Specification Document
+\item \emph{myTaxiDriver} Integration Tests Assignment
+\end{itemize}
+
+\section{Integration Strategy}
+
+\subsection{Entry Criteria}
+These are the documents that must be delivered in order to perform the integration test: \textit{RASD, DD}.
+In addition to these documents it is also required that all the components have been delivered  and their respective unit tests have already been performed and passed successfully.
+
+In order to proceed with the integration test is also important to have all the drivers that was used in the unit test because they can be reused in order to perform the necessary calls on the appropriate component that is now, step by step, connected with the others component of the system.
+
+Another important thing is the interaction with the externals component that are: \emph{Google Maps} and \emph{Driver License DB}.
+These interactions are supposed to be already tested in the unit test because are very simple and really related only with the interested component.
+
+\subsection{Elements to be Integrated}
+The elements which require integration are:
+\begin{itemize*}
+\item myTaxiService account manager
+\item myTaxiService DB
+\item PositionUtilities
+\item NotificationManager
+\item QueueManager
+\item CallManager
+\item ReservationManager
+\item myTaxiService MobileApp myTaxiService WebSite
+\end{itemize*}
+The details about these elements and their interaction can be found in the design document.
+
+\subsection{Integration Test Strategy}
+The adopted strategy for this integration tests is almost always the \textit{bottom-up} one. This approach was opted because it is possible to easily identify an atomic function for each component that will form the released software. As a consequence, testing the behaviour of every single component in the right order guarantees that the system as a whole will work properly.
+
+Due to the complex interconnections present in the system, is not always possible to apply the pure \textit{bottom-up} strategy that consist in creating only drivers. In fact, sometimes, in order to test only one interconnection at a time some stubs are needed to simulate the presence of a component whose interconnection wasn't already tested.
+
+In order to keep the reading of the document as clearer as possible, for each integration test we have put a diagram representing the involved components and for each component a color is representative of the role of it in the specific integration test. Here is a small legend of the used colors:
+\begin{itemize*}
+    \item[\textcolor{gray}{Gray:}] Components that are under testing in the specific section.
+    \item[\textcolor{green}{Green:}] Components whose integration was alerady tested.
+    \item[\textcolor{blue}{Blue:}] Stubs used for the test.
+    \item[\textcolor{red}{Red:}] Drivers used for the test.
+\end{itemize*}
+
+\subsection{Sequence of component}
+
+In this section are proposed two schemata which describe our components with their interconnections. For each connection an integration test is needed and marked with a code. The number present in the code identify the test and the order in which they must be performed.
+
+As you can see the big \emph{Application} component (highlighted in yellow) must be tested internally before starting with the highest level integration.
+
+Regarding the two components Mobile Application and Web Application, here are always shown separately in order to be coherent with the DD but the explanation of tests is performed together referring to a \textit{User Interface} component because the same tests must be done in the same way either for the site and for the app.
+
+% Define block styles
+\tikzstyle{block} = [rectangle, draw, fill=gray!20, 
+    text width=6em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{line} = [draw, -latex']
+
+\begin{figure}[H]
+\begin{tikzpicture}[node distance = 2.5cm, auto]
+    % Place nodes
+    \node [block] (db) {Database};
+    \node [block, right of=db, above of=db] (account) {Account Manager};
+    \node [block, right of=db, below of=db, fill=yellow!20] (application) {Application};
+    \node [block, right of=application, above of=application] (appgui) {Mobile Application};
+    \node [block, right of=appgui, text width=8em, node distance = 3.5cm] (webgui) {Web Application};
+    % Draw edges
+    \path [line] (db) -- node {IT7} (account);
+    \path [line] (db) -- node {IT8} (application);
+    \path [line] (account) -- node {IT9} (application);
+    \path [line] (application) -- node {IT11} (appgui);
+    \path [line] (application) -| node [near start] {IT11}  (webgui);
+    \path [line] (account) -| node [near start] {IT10} (webgui);
+    \path [line] (account) -- node {IT10} (appgui);
+\end{tikzpicture}
+\caption{Integration schema between first level components}
+\end{figure}
+
+\newsavebox\mybox
+
+\begin{figure}[H]
+\begin{tikzpicture}[node distance = 3cm, auto]
+    \draw [color=gray,thick, rounded corners, fill=yellow!20](-1.5,-4) rectangle (13.5,4);
+    \node at (-1.5,4.3) [above=0mm, right=0mm] {\textsc{Application}};
+    % Place nodes
+    \node [block] (position) {Position Manager};
+    \node [block, right of=position, node distance = 6cm] (notification) {Notification Manager};
+    \node [block, below of=notification, left of=notification] (queue) {Queue Manager};
+    \node [block, right of=queue, node distance = 9cm] (call) {Call Manager};
+    \node [block, above of=notification, right of=notification] (reservation) {Reservation Manager};
+    % Draw edges
+    \path [line] (notification) -- node {IT6} (call);
+    \path [line] (position) -- node {IT1} (queue);
+    \path [line] (position) -- node {IT15} (call);
+    \path [line] (queue) -- node {IT4} (call);
+    \path [line] (notification) -- node {IT3} (reservation);
+    \path [line] (position) -- node {IT2} (reservation);
+\end{tikzpicture}
+\caption{Integration schema between components belonging to application component}
+\end{figure}
+
+\section{Individual Steps and Test Description}
+
+\tikzstyle{driverblock} = [rectangle, draw, fill=red!20, 
+    text width=6em, text centered, rounded corners, minimum height=4em]
+
+\tikzstyle{testedblock} = [rectangle, draw, fill=green!20, 
+    text width=6em, text centered, rounded corners, minimum height=4em]
+    
+\tikzstyle{stubblock} = [rectangle, draw, fill=blue!20, 
+    text width=6em, text centered, rounded corners, minimum height=4em]
+
+\renewcommand{\arraystretch}{1.25}
+
+\newlength{\leftcol}
+\setlength{\leftcol}{.3\textwidth}
+
+\newlength{\rightcol}
+\setlength{\rightcol}{.6\textwidth}
+
+\newcolumntype{L}{>{\bfseries} p{\leftcol} }
+
+\subsection{Integration Tests between Position Manager and Queue Manager}
+
+\begin{figure}[H]
+\begin{tikzpicture}[node distance = 3.5cm, auto]
+    % Place nodes
+    \node [block] (position) {Position Manager};
+    \node [block, right of=position] (queue) {Queue Manager};
+    \node [driverblock, right of=queue] (driver) {Driver};
+    % Draw edges
+    \path [line] (position) -- node {IT1} (queue);
+    \path [line] (queue) -- (driver);
+\end{tikzpicture}
+\caption{Integration schema of IT1 between Position Manager and Queue Manager}
+\end{figure}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT1.1 \\
+  \hline
+  Input Specification & GPS Coordinates\\
+  \hline
+  Output Specification & The reference to the zone in which the passed position is located.\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Position Manager and Queue Manager: Find Zone}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT1.2 \\
+  \hline
+  Input Specification & Driver identification\\
+  \hline
+  Output Specification & GPS Coordinates of their position\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Position Manager and Queue Manager: Get driver position}
+\end{table}
+
+\subsection{Integration Tests between Position Manager and Reservation Manager}
+
+\begin{figure} [H]
+\begin{tikzpicture}[node distance = 3.5cm, auto]
+    % Place nodes
+    \node [block] (position) {Position Manager};
+    \node [block, right of=position] (reservation) {Reservation Manager};
+    \node [driverblock, right of=reservation] (driver) {Driver};
+    \node [stubblock, below of=reservation] (notification) {Stub for Notification Manager};
+    % Draw edges
+    \path [line] (position) -- node {IT2} (reservation);
+    \path [line] (reservation) -- (driver);
+    \path [line] (notification) -- (reservation);
+
+\end{tikzpicture}
+\caption{Integration schema of IT2 between Position Manager and Reservation Manager}
+\end{figure}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT2 \\
+  \hline
+  Input Specification & GPS Coordinates\\
+  \hline
+  Output Specification & The reference to the zone in which the passed position is located.\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Position Manager and Reservation Manager: Find Zone}
+\end{table}
+
+\subsection{Integration Tests between Notification Manager and Reservation Manager}
+
+\begin{figure}[H]
+\begin{tikzpicture}[node distance = 3.5cm, auto]
+    % Place nodes
+    \node [testedblock] (position) {Position Manager};
+    \node [block, below of=position] (notification) {Notification Manager};
+    \node [block, above of=notification, right of=notification] (reservation) {Reservation Manager};
+    \node [driverblock, right of=reservation] (driver) {Driver};
+    % Draw edges
+    \path [line] (notification) -- node {IT3} (reservation);
+    \path [line] (position) -- (reservation);
+    \path [line] (reservation) -- (driver);
+\end{tikzpicture}
+\caption{Integration schema of IT3 between Notification Manager and Reservation Manager}
+\end{figure}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT3 \\
+  \hline
+  Input Specification & list of email address and message\\
+  \hline
+  Output Specification & Notifications are registered by the notification manager\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Notification Manager and Reservation Manager: Send Notification}
+\end{table}
+
+
+\subsection{Integration Tests between Queue Manager and Call Manager}
+
+\begin{figure}[H]
+\begin{tikzpicture}[node distance = 3cm, auto]
+    % Place nodes
+    \node [stubblock] (positionstub) {Stub for Position Manager};
+    \node [stubblock, right of=positionstub] (notification) {Stub for Notification Manager};
+    \node [testedblock, left of=queue, below of=positionstub ] (position) {Position Manager};
+    \node [block, below of=positionstub] (queue) {Queue Manager};
+    \node [block, right of=queue, node distance = 4cm] (call) {Call Manager};
+    \node [driverblock, right of=call] (driver) {Driver};
+% Draw edges
+    \path [line] (notification) -- (call);
+    \path [line] (positionstub) -- (call);
+    \path [line] (position) -- (queue);
+    \path [line] (queue) -- node {IT4}(call);
+    \path [line] (call) -- (driver);
+\end{tikzpicture}
+\caption{Integration schema of IT4 between Queue Manager and Call Manager}
+\end{figure}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT4 \\
+  \hline
+  Input Specification & Identifier of a zone\\
+  \hline
+  Output Specification & Return the drivers present in the specified zone\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Queue Manager and Call Manager: Get drivers present in a queue}
+\end{table}
+
+
+
+\subsection{Integration Tests between Position Manager and Call Manager}
+
+\begin{figure} [H]
+\begin{tikzpicture}[node distance = 3cm, auto]
+    % Place nodes
+    \node [block] (position) {Position Manager};
+    \node [stubblock, right of=position, node distance = 6cm] (notification) {Stub for Notification Manager};
+    \node [testedblock, below of=notification, left of=notification] (queue) {Queue Manager};
+    \node [block, right of=queue, node distance = 6cm] (call) {Call Manager};
+    \node [driverblock, right of=call, above of=call] (driver) {Driver};
+    % Draw edges
+    \path [line] (notification) -- (call);
+    \path [line] (position) -- (queue);
+    \path [line] (position) -- node {IT5} (call);
+    \path [line] (queue) -- (call);
+    \path [line] (call) -- (driver);
+\end{tikzpicture}
+\caption{Integration schema of IT5 between Position Manager and Call Manager}
+\end{figure}
+
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT5 \\
+  \hline
+  Input Specification & GPS Coordinates\\
+  \hline
+  Output Specification & The reference to the zone in which the passed position is located.\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Position Manager and Call Manager: Find Zone}
+\end{table}
+
+\subsection{Integration Tests between Notification Manager and Call Manager}
+
+\begin{figure} [H]
+\begin{tikzpicture}[node distance = 3cm, auto]
+    % Place nodes
+    \node [testedblock] (position) {Position Manager};
+    \node [block, right of=position, node distance = 6cm] (notification) {Notification Manager};
+    \node [testedblock, below of=notification, left of=notification] (queue) {Queue Manager};
+    \node [block, right of=queue, node distance = 6cm] (call) {Call Manager};
+    \node [driverblock, right of=call, above of=call] (driver) {Driver};
+    % Draw edges
+    \path [line] (notification) -- node {IT6} (call);
+    \path [line] (position) -- (queue);
+    \path [line] (position) -- (call);
+    \path [line] (queue) -- (call);
+    \path [line] (call) -- (driver);
+\end{tikzpicture}
+\caption{Integration schema of IT6 between Notification Manager and Call Manager}
+\end{figure}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT6 \\
+  \hline
+  Input Specification & list of email address and message\\
+  \hline
+  Output Specification & Notifications are registered by the notification manager\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Notification Manager and Call Manager: Send Notification}
+\end{table}
+
+\subsection{Integration Tests between Database and Account Manager}
+
+\begin{figure} [H]
+\begin{tikzpicture}[node distance = 3.5cm, auto]
+    % Place nodes
+    \node [block] (db) {Database};
+    \node [block, right of=db] (account) {Account Manager};
+    \node [driverblock, right of=account] (driver) {Driver};
+    % Draw edges
+    \path [line] (db) -- node {IT7} (account);
+    \path [line] (account) -- (driver);
+\end{tikzpicture}
+\caption{Integration schema of IT7 between Database and Account Manager}
+\end{figure}
+
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT7.1 \\
+  \hline
+  Input Specification 
+  & Client data (email, name, surname, date of birth, phone, password) for creating a new account \\
+  \hline
+  Output Specification & A new client with the specified parameters was created and is present in the database \\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Database and Account Manager: Creation of a new client}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT7.2 \\
+  \hline
+  Input Specification 
+  & Driver data (email, name, surname, license, phone, password) for creating a new account \\
+  \hline
+  Output Specification & A new driver with the specified parameters was created and is present in the database \\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Database and Account Manager: Creation of a new driver}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT7.3 \\
+  \hline
+  Input Specification & A driver's or client's ID and their password \\
+  \hline
+  Output Specification & Accept the password if it is stored in the DB and relative to the user's ID\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Database and Account Manager: Password Check}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT7.4 \\
+  \hline
+  Input Specification & The e-mail of an user\\
+  \hline
+  Output Specification & The user registered in the database with the input e-mail or a message to notice that there is no registered user with that e-mail\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Database and Account Manager: Find user by their e-mail}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT7.5 \\
+  \hline
+  Input Specification & The e-mail of a driver\\
+  \hline
+  Output Specification & The state of the driver who has that e-mail, if there is no such driver an exception\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Database and Account Manager: Get the state of a driver}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT7.6 \\
+  \hline
+  Input Specification & The e-mail of a driver and their state to write in the DB\\
+  \hline
+  Output Specification & The updated state of the driver with that e-mail is written in the DB, if there is no such driver an exception in raised\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Database and Account Manager: Update the state of a driver}
+\end{table}
+
+\subsection{Integration Tests between Data Base and Application}
+
+\begin{figure} [H]
+\begin{tikzpicture}[node distance = 3.5cm, auto]
+    % Place nodes
+    \node [block] (db) {Database};
+    \node [block, right of=db] (application) {Application};
+    \node [testedblock, above of=db] (account) {Account Manager};
+    \node [stubblock, above of=application] (stubaccount) {Stub for Account Manager};
+    \node [driverblock, right of=application] (driver) {Driver};
+    % Draw edges
+    \path [line] (db) -- node {IT8} (application);
+    \path [line] (application) -- (driver);
+    \path [line] (db) -- (account);
+    \path [line] (stubaccount) -- (application);
+\end{tikzpicture}
+\caption{Integration schema of IT8 between Data Base and Application}
+\end{figure}
+
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT8.1 \\
+  \hline
+  Input Specification & Request of zones\\
+  \hline
+  Output Specification & All the zones in which the city is divided are returned\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Data Base and Application: Get city zones}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT8.2 \\
+  \hline
+  Input Specification & Ride Reservation data (origin, destination, date, time)\\
+  \hline
+  Output Specification & The ride is stored in the database\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Data Base and Application: Save a ride reservation}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT8.3 \\
+  \hline
+  Input Specification & Ride Reservation ID and the driver who accepted the ride\\
+  \hline
+  Output Specification & The ride is set as accepted with the reference to the driver. If the ride isn't present in the database an error is displayed.\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Data Base and Application: Set a ride reservation as accepted}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT8.4 \\
+  \hline
+  Input Specification & Ride Reservation ID\\
+  \hline
+  Output Specification & The ride is deleted. If the ride isn't present yet in the database an error is displayed.\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Data Base and Application: Delete a Reservation}
+\end{table}
+
+\subsection{Integration Tests between Account Manager and Application}
+
+\begin{figure} [H]
+\begin{tikzpicture}[node distance = 3.5cm, auto]
+    % Place nodes
+    \node [testedblock] (db) {Database};
+    \node [block, above of=db] (account) {Account Manager};
+    \node [block, right of=account] (application) {Application};
+    \node [driverblock, right of=application] (gui) {Driver};
+    % Draw edges
+    \path [line] (db) -- (account);
+    \path [line] (db) -- (application);
+    \path [line] (account) -- node {IT9} (application);
+    \path [line] (application) -- (gui);
+\end{tikzpicture}
+\caption{Integration schema of IT9 between Account Manager and Application}
+\end{figure}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT9.1 \\
+  \hline
+  Input Specification & email of a user (client or driver)\\
+  \hline
+  Output Specification & All the information relative to the passed user. If the user doesn't exists, an error is returned.\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Account Manager and Application: User info}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT9.2 \\
+  \hline
+  Input Specification & driver email and his state to be updated\\
+  \hline
+  Output Specification & the driver state is updated\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Account Manager and Application: Update driver state}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT9.3 \\
+  \hline
+  Input Specification & driver identifier\\
+  \hline
+  Output Specification & the driver is inserted in the right queue\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Account Manager and Application: Insert Driver in Queue}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT9.4 \\
+  \hline
+  Input Specification & driver identifier\\
+  \hline
+  Output Specification & Driver is no longer present the queue\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Account Manager and Application: Remove Driver from queue}
+\end{table}
+
+\subsection{Integration Tests between Account Manager and User Interface}
+
+In order to successfully test this part (and the following one) of the system the most efficient way is to find a group of drivers and possible clients who could test the main functionalities, in fact, having used a bottom up approach, the components which interact with the GUI should have already been properly tested at this point. At the same time it is important to collect opinions from a group of user in order to fix any eventual bug and to improve the application in terms of simplicity of usage and the quality of graphic design.
+
+\begin{figure} [H]
+\begin{tikzpicture}[node distance = 3.5cm, auto]
+    % Place nodes
+    \node [testedblock] (db) {Database};
+    \node [block, right of=db] (account) {Account Manager};
+    \node [block, right of=account, above of=account] (appgui) {Mobile Application};
+    \node [block, right of=account, below of=account, text width=8em] (webgui) {Web Application};
+    \node [stubblock, right of=account] (application) {Stub for Application};
+    \node [driverblock, right of=application] (driver) {Driver (human user)};
+    
+    % Draw edges
+    \path [line] (db) -- (account);
+    \path [line] (account) -- node [near start] {IT10} (webgui);
+    \path [line] (account) -- node {IT10} (appgui);
+    \path [line] (appgui) -- (driver);
+    \path [line] (webgui) -- (driver);
+    \path [line] (application) -- (appgui);
+    \path [line] (application) -- (webgui);
+\end{tikzpicture}
+\caption{Integration schema of IT10 between Account Manager and User Interface}
+\end{figure}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT10.1 \\
+  \hline
+  Input Specification & A mail and a password\\
+  \hline
+  Output Specification & Acceptance or rejection of the request of login depending on the correctness of the credentials provided\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Account Manager and User Interface: Login of an user}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT10.2 \\
+  \hline
+  Input Specification & User data (email, first name, last name, telephone number, password) of the client who would like to be registered\\
+  \hline
+  Output Specification & The client account is successfully created and can be used to log in if (and only if) all the data are correct.\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Account Manager and User Interface: Client registration}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT10.3 \\
+  \hline
+  Input Specification & User data (email, first name, last name, telephone number, license, password) of the driver who would like to be registered\\
+  \hline
+  Output Specification & The driver account is successfully created and can be used to log in  if (and only if) all the data are correct and the license is valid.\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Account Manager and User Interface: Driver registration}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT10.4 \\
+  \hline
+  Input Specification & email of a user (client or driver)\\
+  \hline
+  Output Specification & All the information relative to the passed user. If the user doesn't exists, an error is returned.\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Account Manager and User Interface: User info}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT10.5 \\
+  \hline
+  Input Specification & driver email and his state to be updated\\
+  \hline
+  Output Specification & the driver state is updated\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Account Manager and User Interface: Update driver state}
+\end{table}
+
+\subsection{Integration Tests between Application and User Interface}
+
+\begin{figure} [H]
+\begin{tikzpicture}[node distance = 3cm, auto]
+    % Place nodes
+    \node [testedblock] (db) {Database};
+    \node [testedblock, right of=db, above of=db] (account) {Account Manager};
+    \node [block, right of=db, below of=db] (application) {Application};
+    \node [block, right of=application, above of=application] (appgui) {Mobile Application};
+    \node [block, right of=account, text width=8em, node distance = 7cm] (webgui) {Web Application};
+    \node [driverblock, right of=application, node distance = 9cm] (driver) {Driver (human user)};
+    % Draw edges
+    \path [line] (db) -- (account);
+    \path [line] (db) --  (application);
+    \path [line] (account) --  (application);
+    \path [line] (application) -- node {IT11} (appgui);
+    \path [line] (application) -| node [near start] {IT11}  (webgui);
+    \path [line] (account) -- (webgui);
+    \path [line] (account) -- (appgui);
+    \path [line] (appgui) -- (driver);
+    \path [line] (webgui) -- (driver);
+\end{tikzpicture}
+\caption{Integration schema of IT11 between Application and User Interface}
+\end{figure}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT11.1 \\
+  \hline
+  Input Specification & Client email address and their GPS coordinates\\
+  \hline
+  Output Specification & the call is submitted to the system\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Application and User Interface: Forward a call}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT11.2 \\
+  \hline
+  Input Specification & Call reference\\
+  \hline
+  Output Specification & all the details of the specific call are returned\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Application and User Interface: Show call details}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT11.3 \\
+  \hline
+  Input Specification & Client email, ride origin and destination, starting time\\
+  \hline
+  Output Specification & The reservation is correctly submitted to the system\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Application and User Interface: Create new Reservation}
+\end{table}
+
+\begin{table} [H]
+\begin{center}
+\begin{tabular}{| L | p{\rightcol} |}
+  \hline
+  Test Identifier & IT11.4 \\
+  \hline
+  Input Specification & Reservation reference\\
+  \hline
+  Output Specification & all the details of the specific reservation are returned\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Integration Test between Application and User Interface: Show reservation details}
+\end{table}
+
+\section{Tools and Test Equipment Required}
+
+In order to test the integration of our system there aren't a lot of useful tools and we've proceeded principally by manual tests.
+
+A tool that can be used is \emph{Mockito} which sound as a tool for unit tests but is important to simplify the creation of stubs which are used for the integration tests presented before.
+
+In order to test the front-end of the system is important to have human people such as a team of taxi drivers and one of candidate users. In this way the system is checked in all its parts and also a feedback from the user is received.
+
+\section{Program Stubs and Test Data Required}
+
+Despite we used a bottom-up approach, the integration of some components cannot be correctly tested without the use of some stubs.
+
+For this reasons a stub representing each of the following components is needed for our integration test:
+\begin{itemize}
+    \item Notification Manager
+    \item Position Manager
+    \item Account Manager
+    \item Application
+\end{itemize}
+
+The application that we are going to test is strictly related with a database and for this reason it must be initialized with some data in order to perform meaningful test. In order to do this is important to provide a set of users, both \textit{Clients} and \textit{Drivers} and a set of \textit{Zones}. Having these data we can perform all the test in this simulated but real situation.
+
+\section{Appendix}
+
+\subsection{Software and Tools used}
+
+\begin{description}
+\item[ShareLatex:] This web application was used to redact this document in a collaborative way. 
+\newline (\url{https://it.sharelatex.com/})
+\end{description}
+
+\subsection{Hours of Work}
+We spent approximately the following amount of hours to redact this document:
+\begin{description}
+\item[Riva Luca:] 10
+\item[Strada Jacopo:] 10
+\end{description}
+
+
+\end{document}
