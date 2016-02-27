@@ -1,0 +1,60 @@
+\documentclass[9pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{floatrow}
+\usepackage{color}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+
+\graphicspath{ {img/} }
+
+\makeatletter
+\newcommand*{\currentname}{\@currentlabelname}
+\makeatother
+
+\usetheme{Boadilla}
+\usecolortheme{whale}
+\beamertemplatenavigationsymbolsempty 
+\setbeamersize{text margin left=1em,text margin right=1em}
+
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Table of Contents}
+		\setcounter{tocdepth}{2}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\title{myTaxiService}
+\subtitle{Final Presentation}
+\author{Jacopo Strada, Luca Riva}
+\date{February 26, 2016}
+\institute[]{Politecnico di Milano\\Software Engineering 2 Project}
+
+\begin{document}
+
+\maketitle
+
+% REQUIREMENTS AND SPECIFICATION
+\include{1-requirements}
+
+% DESIGN
+\include{2-design}
+
+% INTEGRATION TESTING
+\include{3-testing}
+
+% PROJECT PLANNING
+\include{4-planning}
+
+% END
+
+\begin{frame}{Questions?}
+\begin{figure}[H]
+\includegraphics[height=.6\textheight]{questions}
+\centering
+\end{figure}
+\end{frame}
+
+\end{document}

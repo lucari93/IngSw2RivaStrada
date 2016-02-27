@@ -1,0 +1,537 @@
+\section{Integration Testing}
+
+\subsection{Overall View on Integration Components}
+
+% Define block styles
+\tikzstyle{block} = [rectangle, draw, fill=gray!20,
+    text width=6em, text centered, rounded corners, minimum height=4em]
+    
+\tikzstyle{hiddenblock} = [rectangle, draw, fill=gray!5, text = gray!50, draw=gray!50,
+    text width=6em, text centered, rounded corners, minimum height=4em]
+
+\tikzstyle{driverblock} = [rectangle, draw, fill=red!20, 
+    text width=6em, text centered, rounded corners, minimum height=4em]
+
+\tikzstyle{testedblock} = [rectangle, draw, fill=green!20, 
+    text width=6em, text centered, rounded corners, minimum height=4em]
+    
+\tikzstyle{stubblock} = [rectangle, draw, fill=blue!20, 
+    text width=6em, text centered, rounded corners, minimum height=4em]
+
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{hiddenline} = [draw=gray!50, text=gray!50, -latex']
+\tikzstyle{testedline} = [draw=green, -latex', line width = 0.35mm]
+
+\begin{frame}{\currentname}
+
+\begin{columns}[c]
+  \begin{column}{.5\textwidth}
+    \vbox to .8\textheight{
+        
+        \vfill
+        
+        \textbf{Strategy:} \newline
+        Bottom Up approach but... not pure!
+
+        \vfill
+    
+        Test the integration starting from the application logic and finishing with the graphical user interface
+
+        \vfill
+
+         Not always possible due to the presence of complex interconnections
+         
+         \vfill
+         
+         Some stubs are needed
+         
+         \vfill
+         
+        }
+
+  \end{column}
+  \begin{column}{.5\textwidth}
+    \begin{figure}[H]
+    \begin{tikzpicture}[node distance = 2cm, auto, scale=0.5, transform shape]
+        % Place nodes
+        \node [block] (db) {Database};
+        \node [block, right of=db, above of=db] (account) {Account Manager};
+        \node [block, right of=db, below of=db, fill=yellow!20] (application) {Application};
+        \node [block, right of=db, node distance = 5cm] (appgui) {Mobile Application};
+        \node [block, right of=appgui, text width=8em, node distance = 3.5cm] (webgui) {Web Application};
+        % Draw edges
+        \path [line] (db) -- node {IT7} (account);
+        \path [line] (db) -- node {IT8} (application);
+        \path [line] (account) -- node {IT9} (application);
+        \path [line] (application) -- node {IT11} (appgui);
+        \path [line] (application) -| node [near start] {IT11}  (webgui);
+        \path [line] (account) -| node [near start] {IT10} (webgui);
+        \path [line] (account) -- node {IT10} (appgui);
+    \end{tikzpicture}
+    \end{figure}
+    \begin{figure}[H]
+    \begin{tikzpicture}[node distance = 2.3cm, auto, scale=0.5, transform shape]
+        \draw [color=gray,thick, rounded corners, fill=yellow!20](-1.7,-3.5) rectangle (7.7,3.5);
+        \node at (-1.5,3.7) [above=0mm, right=0mm] {\textsc{Application}};
+        % Place nodes
+        \node [block] (position) {Position Manager};
+        \node [block, right of=position, node distance = 6cm] (notification) {Notification Manager};
+        \node [block, below of=position] (queue) {Queue Manager};
+        \node [block, below of=notification] (call) {Call Manager};
+        \node [block, above of=notification] (reservation) {Reservation Manager};
+        % Draw edges
+        \path [line] (notification) -- node {IT6} (call);
+        \path [line] (position) -- node {IT1} (queue);
+        \path [line] (position) -- node {IT15} (call);
+        \path [line] (queue) -- node {IT4} (call);
+        \path [line] (notification) -- node {IT3} (reservation);
+        \path [line] (position) -- node {IT2} (reservation);
+    \end{tikzpicture}
+    \end{figure}
+  \end{column}
+\end{columns}
+
+\end{frame}
+
+\subsection{Integration Steps}
+
+\begin{frame}{\currentname}
+	
+\framesubtitle{Application}
+	
+\begin{figure}[H]
+	\begin{tikzpicture}[node distance = 3cm, auto, scale=0.8, transform shape]
+	\draw [color=gray,thick, rounded corners, fill=yellow!20](-1.5,-4) rectangle (13.5,4);
+	\node at (-1.5,4.3) [above=0mm, right=0mm] {\textsc{Application}};
+	% Place nodes
+	\node [hiddenblock] (position) {Position Manager};
+	\node [hiddenblock, right of=position, node distance = 6cm] (notification) {Notification Manager};
+	\node [hiddenblock, below of=notification, left of=notification] (queue) {Queue Manager};
+	\node [hiddenblock, right of=queue, node distance = 9cm] (call) {Call Manager};
+	\node [hiddenblock, above of=notification, right of=notification] (reservation) {Reservation Manager};
+	% Draw edges
+	\path [hiddenline] (notification) -- node {IT6} (call);
+	\path [hiddenline] (position) -- node {IT1} (queue);
+	\path [hiddenline] (position) -- node {IT15} (call);
+	\path [hiddenline] (queue) -- node {IT4} (call);
+	\path [hiddenline] (notification) -- node {IT3} (reservation);
+	\path [hiddenline] (position) -- node {IT2} (reservation);
+	\end{tikzpicture}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}{\currentname{} - IT1}
+\framesubtitle{Application: Integration between Position Manager and Queue Manager}
+\begin{figure}[H]
+\begin{tikzpicture}[node distance = 3cm, auto, scale=0.8, transform shape]
+    \draw [color=gray,thick, rounded corners, fill=yellow!20](-1.5,-4) rectangle (13.5,4);
+    \node at (-1.5,4.3) [above=0mm, right=0mm] {\textsc{Application}};
+    % Place nodes
+    \node [block] (position) {Position Manager};
+    \node [hiddenblock, right of=position, node distance = 6cm] (notification) {Notification Manager};
+    \node [block, below of=notification, left of=notification] (queue) {Queue Manager};
+    \node [hiddenblock, right of=queue, node distance = 9cm] (call) {Call Manager};
+    \node [hiddenblock, above of=notification, right of=notification] (reservation) {Reservation Manager};
+    % Draw edges
+    \path [hiddenline] (notification) -- node {IT6} (call);
+    \path [line] (position) -- node {IT1} (queue);
+    \path [hiddenline] (position) -- node {IT15} (call);
+    \path [hiddenline] (queue) -- node {IT4} (call);
+    \path [hiddenline] (notification) -- node {IT3} (reservation);
+    \path [hiddenline] (position) -- node {IT2} (reservation);
+
+	%Additions
+	\onslide<2->{
+	    \node [driverblock, below of=position] (driver) {Driver};
+	    \path [line] (queue) -- (driver);
+	}
+\end{tikzpicture}
+\end{figure}
+\end{frame}
+
+\begin{frame}{\currentname{} - IT2}
+	\framesubtitle{Application: Integration between Position Manager and Reservation Manager}
+	\begin{figure}[H]
+		\begin{tikzpicture}[node distance = 3cm, auto, scale=0.8, transform shape]
+		\draw [color=gray,thick, rounded corners, fill=yellow!20](-1.5,-4) rectangle (13.5,4);
+		\node at (-1.5,4.3) [above=0mm, right=0mm] {\textsc{Application}};
+		% Place nodes
+		\node [block] (position) {Position Manager};
+		\node [hiddenblock, right of=position, node distance = 6cm] (notification) {Notification Manager};
+		\node [hiddenblock, below of=notification, left of=notification] (queue) {Queue Manager};
+		\node [hiddenblock, right of=queue, node distance = 9cm] (call) {Call Manager};
+		\node [block, above of=notification, right of=notification] (reservation) {Reservation Manager};
+
+		% Draw edges
+		\path [hiddenline] (notification) -- node {IT6} (call);
+		\path [testedline] (position) -- node {IT1} (queue);
+		\path [hiddenline] (position) -- node {IT15} (call);
+		\path [hiddenline] (queue) -- node {IT4} (call);
+		\path [hiddenline] (notification) -- node {IT3} (reservation);
+		\path [line] (position) -- node {IT2} (reservation);
+		
+		% Additions
+		\onslide<2->{
+			\node [stubblock, below of=reservation] (stub) {Stub for Notification Manager};
+			\path [line] (stub) -- (reservation);
+		}
+		\onslide<3->{
+			\node [driverblock, right of=reservation] (driver) {Driver};
+			\path [line] (reservation) -- (driver);
+		}
+		\end{tikzpicture}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{\currentname{} - IT3}
+	\framesubtitle{Application: Integration between Notification Manager and Reservation Manager}
+	\begin{figure}[H]
+		\begin{tikzpicture}[node distance = 3cm, auto, scale=0.8, transform shape]
+		\draw [color=gray,thick, rounded corners, fill=yellow!20](-1.5,-4) rectangle (13.5,4);
+		\node at (-1.5,4.3) [above=0mm, right=0mm] {\textsc{Application}};
+		% Place nodes
+		\node [testedblock] (position) {Position Manager};
+		\node [block, right of=position, node distance = 6cm] (notification) {Notification Manager};
+		\node [hiddenblock, below of=notification, left of=notification] (queue) {Queue Manager};
+		\node [hiddenblock, right of=queue, node distance = 9cm] (call) {Call Manager};
+		\node [block, above of=notification, right of=notification] (reservation) {Reservation Manager};
+		
+		% Draw edges
+		\path [hiddenline] (notification) -- node {IT6} (call);
+		\path [testedline] (position) -- node {IT1} (queue);
+		\path [hiddenline] (position) -- node {IT15} (call);
+		\path [hiddenline] (queue) -- node {IT4} (call);
+		\path [line] (notification) -- node {IT3} (reservation);
+		\path [testedline] (position) -- node {IT2} (reservation);
+		
+		% Additions
+		\onslide<2->{
+			\node [driverblock, right of=reservation] (driver) {Driver};
+			\path [line] (reservation) -- (driver);
+		}
+		\end{tikzpicture}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{\currentname{} - IT4}
+	\framesubtitle{Application: Integration between Queue Manager and Call Manager}
+	\begin{figure}[H]
+		\begin{tikzpicture}[node distance = 3cm, auto, scale=0.8, transform shape]
+		\draw [color=gray,thick, rounded corners, fill=yellow!20](-1.5,-4) rectangle (13.5,4);
+		\node at (-1.5,4.3) [above=0mm, right=0mm] {\textsc{Application}};
+		% Place nodes
+		\node [testedblock] (position) {Position Manager};
+		\node [hiddenblock, right of=position, node distance = 6cm] (notification) {Notification Manager};
+		\node [block, below of=notification, left of=notification] (queue) {Queue Manager};
+		\node [block, right of=queue, node distance = 9cm] (call) {Call Manager};
+		\node [hiddenblock, above of=notification] (reservation) {Reservation Manager};
+		
+		% Draw edges
+		\path [hiddenline] (notification) -- node {IT6} (call);
+		\path [testedline] (position) -- node {IT1} (queue);
+		\path [hiddenline] (position) -- node {IT15} (call);
+		\path [line] (queue) -- node {IT4} (call);
+		\path [testedline] (notification) -- node {IT3} (reservation);
+		\path [testedline] (position) -- node {IT2} (reservation);
+		
+		% Additions
+		\onslide<2->{
+			\node [stubblock, right of=reservation] (stub) {Stub for Notification Manager};
+			\path [line] (stub) -- (call);
+		}
+		\onslide<3->{
+			\node [stubblock, right of=notification] (stub1) {Stub for Position Manager};
+			\path [line] (stub1) -- (call);
+		}
+		\onslide<4->{
+			\node [driverblock, above of=call] (driver) {Driver};
+			\path [line] (call) -- (driver);
+		}
+		\end{tikzpicture}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{\currentname{} - IT5}
+	\framesubtitle{Application: Integration between Position Manager and Call Manager}
+	\begin{figure}[H]
+		\begin{tikzpicture}[node distance = 3cm, auto, scale=0.8, transform shape]
+		\draw [color=gray,thick, rounded corners, fill=yellow!20](-1.5,-4) rectangle (13.5,4);
+		\node at (-1.5,4.3) [above=0mm, right=0mm] {\textsc{Application}};
+		% Place nodes
+		\node [block] (position) {Position Manager};
+		\node [hiddenblock, right of=position, node distance = 6cm] (notification) {Notification Manager};
+		\node [testedblock, below of=notification, left of=notification] (queue) {Queue Manager};
+		\node [block, right of=queue, node distance = 9cm] (call) {Call Manager};
+		\node [hiddenblock, above of=notification, right of=notification] (reservation) {Reservation Manager};
+		
+		% Draw edges
+		\path [hiddenline] (notification) -- node {IT6} (call);
+		\path [testedline] (position) -- node {IT1} (queue);
+		\path [line] (position) -- node {IT15} (call);
+		\path [testedline] (queue) -- node {IT4} (call);
+		\path [testedline] (notification) -- node {IT3} (reservation);
+		\path [testedline] (position) -- node {IT2} (reservation);
+		
+		% Additions
+		\onslide<2->{
+			\node [stubblock, below of=reservation] (stub) {Stub for Notification Manager};
+			\path [line] (stub) -- (call);
+		}
+		\onslide<3->{
+			\node [driverblock, right of=stub] (driver) {Driver};
+			\path [line] (call) -- (driver);
+		}
+		\end{tikzpicture}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{\currentname{} - IT6}
+	\framesubtitle{Application: Integration between Notification Manager and Call Manager}
+	\begin{figure}[H]
+		\begin{tikzpicture}[node distance = 3cm, auto, scale=0.8, transform shape]
+		\draw [color=gray,thick, rounded corners, fill=yellow!20](-1.5,-4) rectangle (13.5,4);
+		\node at (-1.5,4.3) [above=0mm, right=0mm] {\textsc{Application}};
+		% Place nodes
+		\node [testedblock] (position) {Position Manager};
+		\node [block, right of=position, node distance = 6cm] (notification) {Notification Manager};
+		\node [testedblock, below of=notification, left of=notification] (queue) {Queue Manager};
+		\node [block, right of=queue, node distance = 9cm] (call) {Call Manager};
+		\node [hiddenblock, above of=notification, right of=notification] (reservation) {Reservation Manager};
+		
+		% Draw edges
+		\path [line] (notification) -- node {IT6} (call);
+		\path [testedline] (position) -- node {IT1} (queue);
+		\path [testedline] (position) -- node {IT15} (call);
+		\path [testedline] (queue) -- node {IT4} (call);
+		\path [testedline] (notification) -- node {IT3} (reservation);
+		\path [testedline] (position) -- node {IT2} (reservation);
+		
+		% Additions
+		\onslide<2->{
+			\node [driverblock, right of=stub] (driver) {Driver};
+			\path [line] (call) -- (driver);
+		}
+		\end{tikzpicture}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{\currentname{}}
+	\framesubtitle{Application Tested!}
+	\begin{figure}[H]
+		\begin{tikzpicture}[node distance = 3cm, auto, scale=0.8, transform shape]
+		\draw [color=gray,thick, rounded corners, fill=yellow!20](-1.5,-4) rectangle (13.5,4);
+		\node at (-1.5,4.3) [above=0mm, right=0mm] {\textsc{Application}};
+		% Place nodes
+		\node [testedblock] (position) {Position Manager};
+		\node [testedblock, right of=position, node distance = 6cm] (notification) {Notification Manager};
+		\node [testedblock, below of=notification, left of=notification] (queue) {Queue Manager};
+		\node [testedblock, right of=queue, node distance = 9cm] (call) {Call Manager};
+		\node [testedblock, above of=notification, right of=notification] (reservation) {Reservation Manager};
+		
+		% Draw edges
+		\path [testedline] (notification) -- node {IT6} (call);
+		\path [testedline] (position) -- node {IT1} (queue);
+		\path [testedline] (position) -- node {IT15} (call);
+		\path [testedline] (queue) -- node {IT4} (call);
+		\path [testedline] (notification) -- node {IT3} (reservation);
+		\path [testedline] (position) -- node {IT2} (reservation);
+		
+		\end{tikzpicture}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{\currentname}
+	\framesubtitle{Global}
+	\begin{figure}[H]
+	\begin{tikzpicture}[node distance = 2.5cm, auto]
+	% Place nodes
+	\node [hiddenblock] (db) {Database};
+	\node [hiddenblock, right of=db, above of=db] (account) {Account Manager};
+	\node [hiddenblock, right of=db, below of=db, fill=yellow!20] (application) {Application};
+	\node [hiddenblock, right of=application, above of=application] (appgui) {Mobile Application};
+	\node [hiddenblock, right of=appgui, text width=8em, node distance = 3.5cm] (webgui) {Web Application};
+	% Draw edges
+	\path [hiddenline] (db) -- node {IT7} (account);
+	\path [hiddenline] (db) -- node {IT8} (application);
+	\path [hiddenline] (account) -- node {IT9} (application);
+	\path [hiddenline] (application) -- node {IT11} (appgui);
+	\path [hiddenline] (application) -| node [near start] {IT11}  (webgui);
+	\path [hiddenline] (account) -| node [near start] {IT10} (webgui);
+	\path [hiddenline] (account) -- node {IT10} (appgui);
+	\end{tikzpicture}
+\end{figure}
+\end{frame}
+
+\begin{frame}{\currentname{} - IT7}
+	\framesubtitle{Global: Integration between Database and Account Manager}
+	\begin{figure}[H]
+		\begin{tikzpicture}[node distance = 2.5cm, auto]
+		% Place nodes
+		\node [block] (db) {Database};
+		\node [block, right of=db, above of=db] (account) {Account Manager};
+		\node [hiddenblock, right of=db, below of=db, fill=yellow!20] (application) {Application};
+		\node [hiddenblock, right of=application, above of=application] (appgui) {Mobile Application};
+		\node [hiddenblock, right of=appgui, text width=8em, node distance = 3.5cm] (webgui) {Web Application};
+		% Draw edges
+		\path [line] (db) -- node {IT7} (account);
+		\path [hiddenline] (db) -- node {IT8} (application);
+		\path [hiddenline] (account) -- node {IT9} (application);
+		\path [hiddenline] (application) -- node {IT11} (appgui);
+		\path [hiddenline] (application) -- node [near start] {IT11}  (webgui);
+		\path [hiddenline] (account) -- node [near start] {IT10} (webgui);
+		\path [hiddenline] (account) -- node {IT10} (appgui);
+		
+		% Additions
+		\onslide<2->{
+			\node [driverblock, above of=webgui] (driver) {Driver};
+			\path [line] (account) -- (driver);
+		}
+		\end{tikzpicture}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{\currentname{} - IT8}
+	\framesubtitle{Global: Integration between Database and Application}
+	\begin{figure}[H]
+		\begin{tikzpicture}[node distance = 2.5cm, auto]
+		% Place nodes
+		\node [block] (db) {Database};
+		\node [hiddenblock, right of=db, above of=db] (account) {Account Manager};
+		\node [block, right of=db, below of=db, fill=yellow!20] (application) {Application};
+		\node [hiddenblock, right of=application, above of=application] (appgui) {Mobile Application};
+		\node [hiddenblock, right of=appgui, text width=8em, node distance = 3.5cm] (webgui) {Web Application};
+		% Draw edges
+		\path [testedline] (db) -- node {IT7} (account);
+		\path [line] (db) -- node {IT8} (application);
+		\path [hiddenline] (account) -- node {IT9} (application);
+		\path [hiddenline] (application) -- node {IT11} (appgui);
+		\path [hiddenline] (application) -- node [near start] {IT11}  (webgui);
+		\path [hiddenline] (account) -- node [near start] {IT10} (webgui);
+		\path [hiddenline] (account) -- node {IT10} (appgui);
+		
+		% Additions
+		\onslide<2->{
+				\node [stubblock, left of=application] (stub) {Stub for Account Manager};
+				\path [line] (stub) -- (application);
+			}
+		\onslide<3->{
+			\node [driverblock, below of=webgui] (driver) {Driver};
+			\path [line] (application) -- (driver);
+		}
+		\end{tikzpicture}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{\currentname{} - IT9}
+	\framesubtitle{Global: Integration between Account Manager and Application}
+	\begin{figure}[H]
+		\begin{tikzpicture}[node distance = 2.5cm, auto]
+		% Place nodes
+		\node [testedblock] (db) {Database};
+		\node [block, right of=db, above of=db] (account) {Account Manager};
+		\node [block, right of=db, below of=db, fill=yellow!20] (application) {Application};
+		\node [hiddenblock, right of=application, above of=application] (appgui) {Mobile Application};
+		\node [hiddenblock, right of=appgui, text width=8em, node distance = 3.5cm] (webgui) {Web Application};
+		% Draw edges
+		\path [testedline] (db) -- node {IT7} (account);
+		\path [testedline] (db) -- node {IT8} (application);
+		\path [line] (account) -- node {IT9} (application);
+		\path [hiddenline] (application) -- node {IT11} (appgui);
+		\path [hiddenline] (application) -- node [near start] {IT11}  (webgui);
+		\path [hiddenline] (account) -- node [near start] {IT10} (webgui);
+		\path [hiddenline] (account) -- node {IT10} (appgui);
+		
+		% Additions
+		\onslide<2->{
+			\node [driverblock, below of=webgui] (driver) {Driver};
+			\path [line] (application) -- (driver);
+		}
+		\end{tikzpicture}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{\currentname{} - IT10}
+	\framesubtitle{Global: Integration between Account Manager and User Interface}
+	\begin{figure}[H]
+		\begin{tikzpicture}[node distance = 2.5cm, auto]
+		% Place nodes
+		\node [testedblock] (db) {Database};
+		\node [block, right of=db, above of=db] (account) {Account Manager};
+		\node [hiddenblock, right of=db, below of=db, fill=yellow!20] (application) {Application};
+		\node [block, right of=application, above of=application] (appgui) {Mobile Application};
+		\node [block, right of=appgui, text width=8em, node distance = 3.5cm] (webgui) {Web Application};
+		% Draw edges
+		\path [testedline] (db) -- node {IT7} (account);
+		\path [testedline] (db) -- node {IT8} (application);
+		\path [testedline] (account) -- node {IT9} (application);
+		\path [hiddenline] (application) -- node {IT11} (appgui);
+		\path [hiddenline] (application) -- node [near start] {IT11}  (webgui);
+		\path [line] (account) -- node [near start] {IT10} (webgui);
+		\path [line] (account) -- node {IT10} (appgui);
+		
+		% Additions
+		\onslide<2->{
+			\node [stubblock, above of=webgui] (stub) {Stub for Application};
+			\path [line] (stub) -- (appgui);
+			\path [line] (stub) -- (webgui);
+		}
+		\onslide<3->{
+			\node [driverblock, below of=webgui] (driver) {Driver (human user)};
+			\path [line] (appgui) -- (driver);
+			\path [line] (webgui) -- (driver);
+		}
+		\end{tikzpicture}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{\currentname{} - IT11}
+	\framesubtitle{Global: Integration between Application and User Interface}
+	\begin{figure}[H]
+		\begin{tikzpicture}[node distance = 2.5cm, auto]
+		% Place nodes
+		\node [testedblock] (db) {Database};
+		\node [testedblock, right of=db, above of=db] (account) {Account Manager};
+		\node [block, right of=db, below of=db, fill=yellow!20] (application) {Application};
+		\node [block, right of=application, above of=application] (appgui) {Mobile Application};
+		\node [block, right of=appgui, text width=8em, node distance = 3.5cm] (webgui) {Web Application};
+		% Draw edges
+		\path [testedline] (db) -- node {IT7} (account);
+		\path [testedline] (db) -- node {IT8} (application);
+		\path [testedline] (account) -- node {IT9} (application);
+		\path [line] (application) -- node {IT11} (appgui);
+		\path [line] (application) -- node [near start] {IT11}  (webgui);
+		\path [testedline] (account) -- node [near start] {IT10} (webgui);
+		\path [testedline] (account) -- node {IT10} (appgui);
+		
+		% Additions
+		\onslide<2->{
+			\node [driverblock, below of=webgui] (driver) {Driver (human user)};
+			\path [line] (appgui) -- (driver);
+			\path [line] (webgui) -- (driver);
+		}
+		\end{tikzpicture}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{\currentname{}}
+	\framesubtitle{Whole System Tested!}
+	\begin{figure}[H]
+		\begin{tikzpicture}[node distance = 2.5cm, auto]
+		% Place nodes
+		\node [testedblock] (db) {Database};
+		\node [testedblock, right of=db, above of=db] (account) {Account Manager};
+		\node [testedblock, right of=db, below of=db] (application) {Application};
+		\node [testedblock, right of=application, above of=application] (appgui) {Mobile Application};
+		\node [testedblock, right of=appgui, text width=8em, node distance = 3.5cm] (webgui) {Web Application};
+		% Draw edges
+		\path [testedline] (db) -- node {IT7} (account);
+		\path [testedline] (db) -- node {IT8} (application);
+		\path [testedline] (account) -- node {IT9} (application);
+		\path [testedline] (application) -- node {IT11} (appgui);
+		\path [testedline] (application) -| node [near start] {IT11}  (webgui);
+		\path [testedline] (account) -| node [near start] {IT10} (webgui);
+		\path [testedline] (account) -- node {IT10} (appgui);
+		\end{tikzpicture}
+	\end{figure}
+\end{frame}
